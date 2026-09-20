@@ -329,6 +329,16 @@ export const stylePresetSeeds = [
     description: '美式漫画粗线条风格',
   },
   {
+    name: '真人影视剧质感', value: 'live-action', sortOrder: 6,
+    prompt: 'Photorealistic live-action cinematic drama style, fictional human actors, natural skin texture, realistic facial anatomy and body proportions, authentic wardrobe and real-world production design, physically accurate materials, professional film lighting, natural color grading, 35mm lens, shallow depth of field, subtle film grain, cinematic composition, consistent actor identity across shots, natural human motion, realistic facial expressions, stable identity, natural cloth and hair movement, cinematic camera movement, physically plausible motion, no cartoon, no anime, no 3D CGI, no plastic skin, no waxy face, no illustration, no morphing, no flicker, no rubbery motion',
+    description: '真人影视剧摄影、灯光和自然人物运动质感，适合现代与现实题材',
+  },
+  {
+    name: '真人影视短剧·古风玄幻', value: 'live-action-xianxia', sortOrder: 10,
+    prompt: 'Photorealistic live-action Chinese xianxia fantasy short-drama style, fictional human actors, realistic facial anatomy and natural skin texture, authentic ancient Chinese costumes, detailed silk and layered fabric, historically inspired hair and accessories, grand misty mountains, celestial palaces, clouds, spiritual energy and restrained magical effects integrated with physically believable lighting, cinematic production design, professional film lighting, atmospheric depth, 35mm lens, natural skin tones, controlled color grading, consistent actor identity, consistent costume and prop continuity across shots, natural human motion, realistic sword movement, believable wind and fabric physics, cinematic camera movement, no anime, no 3D cartoon, no game-render look, no plastic skin, no modern clothing, no excessive neon, no text or watermark, no morphing, no flicker, no rubbery motion',
+    description: '真人影视短剧的古装、仙山、云海、法阵和电影级玄幻特效质感',
+  },
+  {
     name: '国风 2.5D', value: 'guofeng', sortOrder: 7,
     prompt: 'Chinese guofeng 2.5D illustration style, semi-realistic donghua-quality character art, elegant flowing line work, rich traditional Chinese aesthetic elements, layered ink-wash inspired atmospheric backgrounds, refined silk and fabric textures, soft luminous lighting with gentle haze, sophisticated muted jewel-tone palette, xianxia drama poster quality, consistent character design across shots, avoid flat cel shading, avoid western comic ink style, avoid photorealism, avoid plastic 3D look, avoid modern clothing and props unless specified',
     description: '国风动画/仙侠剧质感，2.5D 半写实',

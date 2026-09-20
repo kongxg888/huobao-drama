@@ -59,3 +59,18 @@ test('agent default prompts no longer hardcode consistent art style', () => {
   assert.doesNotMatch(agents, /必须包含 "consistent art style"/)
   assert.match(agents, /视觉风格描述会由工具/)
 })
+
+test('built-in live-action presets include image and video continuity constraints', () => {
+  const schema = read('src/db/sqlite-schema.ts')
+
+  assert.match(schema, /name: '真人影视剧质感', value: 'live-action'/)
+  assert.match(schema, /name: '真人影视短剧·古风玄幻', value: 'live-action-xianxia'/)
+  assert.match(schema, /natural human motion/)
+  assert.match(schema, /consistent actor identity/)
+  assert.match(schema, /consistent costume and prop continuity/)
+  assert.match(schema, /restrained magical effects/)
+  assert.match(schema, /no morphing/)
+  assert.match(schema, /no flicker/)
+  assert.match(schema, /REMOVED_SEED_PROMPTS/)
+  assert.match(schema, /live:/)
+})
