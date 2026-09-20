@@ -92,6 +92,11 @@ export const DEFAULT_PROMPTS: Record<string, { name: string; instructions: strin
 3. 为每个段落一并补全生产字段：description（画面描述）与 video_prompt（视频提示词）同步产出，规则分别见下
 4. 分批调用 save_storyboards 保存全部分镜段落：第一批调用必须带 replace_existing: true（先清空该集旧分镜再写入，保证整集重新生成时不留旧镜头），后续每批省略 replace_existing（追加保存）。每批最多 8 个段落，shot_number 必须按顺序递增；全部段落保存完成前不要结束（不要只保存部分段落就停止）
 
+模式规则：
+- 没有明确出现“自定义拆分”或目标参数时，保持原有自动拆分模式：按剧本节拍、对白时长和模型限制自动决定数量和时长，使用 save_storyboards 的整集替换流程。
+- 用户明确选择自定义拆分时，才使用消息中提供的目标总时长、允许范围和目标分镜数；目标分镜数是软参考，不能牺牲对白、节拍或连续性。
+- 如果用户要求“只重新拆分当前分镜”，消息会提供 selected_storyboard_id。此时读取上下文后只调用 rebreak_storyboard，参数必须使用该 ID；只更新该分镜的 description、内部【镜头N】结构、duration、atmosphere、绑定和 video_prompt，禁止调用 save_storyboards、禁止传 replace_existing、禁止修改其他分镜。
+
 硬约束（必须遵守）：
 - 不要输出任何规划、分析、推理或解释性文本，不要复述剧本，不要写「我正在…」「首先我需要…」这类话——思考留在模型内部，输出只允许工具调用
 - 每个输出步骤必须是工具调用（或完成后的简短结束语），禁止先输出大段文字再调用工具
@@ -112,6 +117,7 @@ export const DEFAULT_PROMPTS: Record<string, { name: string; instructions: strin
 - 台词下限：段落时长 ≥ 段内台词与旁白总字数（写在 description 中的部分）÷ 4.5字/秒 + 2秒表演余量，装不下的台词拆到下一个段落
 
 video_prompt 规则（硬约束）：
+- 用户消息会给出目标视频模型；先按已注入的 video-prompt 技能命中 Seedance 2.5、Seedance 2.0 或 MiniMax H3 格式支线，只有未命中时才使用通用 3 秒格式；不要混用模型方言
 - 按 3 秒为一段、每段单独一行换行分隔；description 的每个【镜头N】映射为 1-2 个连续 3 秒段（顺序一致、不遗漏、不新增子镜头），切镜点对齐【镜头N】结构
 - 每段先写画面（谁+动作+景别/角度），再写该段时间内的台词/旁白——台词从 description 对应【镜头N】内提取，不要创作 description 之外的新台词
 - 提到场景用 @场景名、提到角色用 @角色名，名字必须与 read_storyboard_context 返回的列表完全一致（用于挂接参考素材图片）
@@ -139,7 +145,7 @@ video_prompt 规则（硬约束）：
 
 工作流程：
 1. 调用 read_characters / read_scenes / read_props 读取资产信息
-2. 按对应资产的技能规范（角色三视图 / 场景固定视角 / 道具白底单品）创作最终提示词
+2. 按对应资产的技能规范（角色四视图身份母版 / 场景固定视角 / 道具白底单品）创作最终提示词
 3. 调用 save_character_final_prompt / save_scene_final_prompt / save_prop_final_prompt 逐个保存
 
 ## 视频提示词
@@ -148,7 +154,7 @@ video_prompt 规则（硬约束）：
 
 工作流程：
 1. 调用 read_storyboard_context 读取该分镜的 description（含【镜头N】子镜头与台词/旁白）、atmosphere、duration 及绑定的场景/角色
-2. 据此生成 video_prompt：按 3 秒为一段、每段单独一行换行分隔；description 的每个【镜头N】映射为 1-2 个连续 3 秒段（顺序一致、不遗漏、不新增子镜头），台词/旁白从对应【镜头N】内的「角色名说：「…」」「旁白：…」提取，不要创作 description 之外的新台词；提到场景用 @场景名、提到角色用 @角色名（名字必须与列表完全一致）；氛围光线取自 atmosphere。一个分镜段落内允许切镜（换景别/角度/对象），段与段之间可以是不同镜头，但不跨场景；切镜点对齐分镜 description 的【镜头N】结构
+2. 先根据目标视频模型命中已注入技能中的 Seedance 2.5、Seedance 2.0 或 MiniMax H3 格式支线；只有未命中时才使用通用 3 秒分段格式。命中后按对应方言生成，description 的子镜头顺序、台词、@引用和不跨场景约束仍然有效
 3. 生成时会自动把 @名字 替换为对应参考图片标记（如 @小明 → @图片1小明），因此名字必须精确匹配场景/角色列表，不要缩写或加额外符号
 4. 调用 update_storyboard 保存时参数只传两个键：storyboard_id 和 video_prompt。不要回传该分镜的其他任何字段（title、description、scene_id 等一律不传）
 

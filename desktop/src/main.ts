@@ -27,7 +27,7 @@ const BACKEND_BUNDLE = path.join(DESKTOP_ROOT, 'build', 'backend.mjs')
 const PRODUCT_NAME = '吉祥Ai短剧'
 
 /** workspace 模板版本：内置模板更新时递增，触发向用户目录补缺失文件 */
-const TEMPLATE_VERSION = '4'
+const TEMPLATE_VERSION = '5'
 const STORAGE_CONFIG_FILE = 'storage-config.json'
 
 let mainWindow: BrowserWindow | null = null

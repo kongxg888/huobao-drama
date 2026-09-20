@@ -533,7 +533,44 @@
             <div class="prod-section-bar">
               <span class="dim" style="font-size:12px">{{ t('episode.prod.videos') }}</span>
               <span class="tag mono">{{ t('episode.sb.segmentStat', { n: sbs.length, dur: totalDuration }) }}</span>
+              <span v-if="breakdownMode === 'custom'" class="tag mono" :title="t('episode.sb.targetDurationHint')">
+                {{ t('episode.sb.targetDuration') }} {{ targetEpisodeDuration }}{{ t('episode.sb.seconds') }}
+              </span>
+              <span v-if="targetDurationOutOfRange" class="tag mono breakdown-warning">
+                {{ t('episode.sb.targetDurationOutOfRange') }}
+              </span>
               <span class="tag mono" :title="t('episode.vid.aspectRatio')">{{ dramaAspectRatio }}</span>
+              <label class="episode-breakdown-control">
+                <span>{{ t('episode.sb.breakdownMode') }}</span>
+                <select :value="breakdownMode" @change="onBreakdownModeChange">
+                  <option value="auto">{{ t('episode.sb.breakdownModeAuto') }}</option>
+                  <option value="custom">{{ t('episode.sb.breakdownModeCustom') }}</option>
+                </select>
+              </label>
+              <label v-if="breakdownMode === 'custom'" class="episode-breakdown-control">
+                <span>{{ t('episode.sb.targetDuration') }}</span>
+                <input
+                  :value="targetEpisodeDuration"
+                  type="number"
+                  min="30"
+                  max="1800"
+                  step="1"
+                  @change="onTargetEpisodeDurationChange"
+                />
+                <span>{{ t('episode.sb.seconds') }}</span>
+              </label>
+              <label v-if="breakdownMode === 'custom'" class="episode-breakdown-control">
+                <span>{{ t('episode.sb.targetCount') }}</span>
+                <input
+                  :value="targetStoryboardCount || ''"
+                  type="number"
+                  min="1"
+                  max="200"
+                  step="1"
+                  :placeholder="t('episode.sb.targetCountAutoHint')"
+                  @change="onTargetStoryboardCountChange"
+                />
+              </label>
               <div class="ml-auto flex gap-1">
                 <button class="btn btn-sm" :disabled="rn" @click="doBreakdown">
                   <Loader2 v-if="rt === 'storyboard_breaker'" :size="11" class="animate-spin" />
@@ -857,6 +894,15 @@
                       </span>
                     </div>
                     <div class="video-param-hint">{{ t('episode.inspector.durationHint') }}</div>
+                    <button
+                      type="button"
+                      class="btn btn-sm"
+                      :disabled="rn"
+                      @click="rebreakSelectedStoryboard"
+                    >
+                      <Loader2 v-if="rt === 'storyboard_breaker'" :size="11" class="animate-spin" />
+                      {{ t('episode.sb.rebreakSelected') }}
+                    </button>
                   </section>
                   <div class="video-inspector-effective">
                     {{ t('episode.inspector.effective', { model: effectiveVideoModelLabel || t('episode.vid.defaultModel'), res: episodeResolutionShort, dur: effectiveVideoDuration }) }}
@@ -1510,6 +1556,40 @@ const storedPanel = (() => {
 let panelRestored = !!storedPanel
 const panel = ref(['production', 'export'].includes(storedPanel?.panel) ? storedPanel.panel : 'script')
 const { running: rn, runningType: rt, run: runAgent } = useAgent()
+
+const DEFAULT_EPISODE_BREAKDOWN_MODE = 'auto'
+const DEFAULT_EPISODE_TARGET_DURATION = 165
+const DEFAULT_TARGET_STORYBOARD_COUNT = 0
+const MIN_EPISODE_TARGET_DURATION = 30
+const MAX_EPISODE_TARGET_DURATION = 1800
+const MAX_TARGET_STORYBOARD_COUNT = 200
+const breakdownMode = ref(DEFAULT_EPISODE_BREAKDOWN_MODE)
+const targetEpisodeDuration = ref(DEFAULT_EPISODE_TARGET_DURATION)
+const targetStoryboardCount = ref(DEFAULT_TARGET_STORYBOARD_COUNT)
+
+function normalizeBreakdownMode(value) {
+  return value === 'custom' ? 'custom' : DEFAULT_EPISODE_BREAKDOWN_MODE
+}
+
+function normalizeTargetEpisodeDuration(value) {
+  const parsed = Number(value)
+  if (!Number.isFinite(parsed)) return DEFAULT_EPISODE_TARGET_DURATION
+  return Math.min(MAX_EPISODE_TARGET_DURATION, Math.max(MIN_EPISODE_TARGET_DURATION, Math.round(parsed)))
+}
+
+function normalizeTargetStoryboardCount(value) {
+  const parsed = Number(value)
+  if (!Number.isFinite(parsed) || parsed <= 0) return DEFAULT_TARGET_STORYBOARD_COUNT
+  return Math.min(MAX_TARGET_STORYBOARD_COUNT, Math.max(1, Math.round(parsed)))
+}
+
+function episodeDurationRange(seconds) {
+  const target = normalizeTargetEpisodeDuration(seconds)
+  return {
+    min: Math.round(target * 0.9),
+    max: Math.round(target * 1.1),
+  }
+}
 
 const localRaw = ref(''), localScript = ref('')
 const textImportInput = ref(null)
@@ -2603,6 +2683,11 @@ const currentMainStageLabel = computed(() => {
 const currentSubStageLabel = computed(() => currentStageLabel.value)
 
 const totalDuration = computed(() => sbs.value.reduce((s, sb) => s + (sb.duration || 10), 0))
+const targetDurationOutOfRange = computed(() => {
+  if (breakdownMode.value !== 'custom' || !sbs.value.length) return false
+  const range = episodeDurationRange(targetEpisodeDuration.value)
+  return totalDuration.value < range.min || totalDuration.value > range.max
+})
 const selectedSb = ref(null)
 const selectedVideoTaskNumber = computed(() => {
   const index = videoTaskRows.value.findIndex(task => String(task.id) === String(selectedSb.value?.id))
@@ -2689,12 +2774,45 @@ function sceneShotCount(sceneId) {
 watch(rawContent, v => { localRaw.value = v }, { immediate: true })
 watch(scriptContent, v => { localScript.value = v }, { immediate: true })
 
+async function saveBreakdownSetting(field, value) {
+  if (!epId.value) return
+  try {
+    await episodeAPI.update(epId.value, { [field]: value })
+    if (episode.value) episode.value[field] = value
+  } catch (e) {
+    toastError(e)
+  }
+}
+
+function onBreakdownModeChange(event) {
+  const value = normalizeBreakdownMode(event.target.value)
+  breakdownMode.value = value
+  saveBreakdownSetting('breakdown_mode', value)
+}
+
+function onTargetEpisodeDurationChange(event) {
+  const value = normalizeTargetEpisodeDuration(event.target.value)
+  event.target.value = value
+  targetEpisodeDuration.value = value
+  saveBreakdownSetting('target_duration', value)
+}
+
+function onTargetStoryboardCountChange(event) {
+  const value = normalizeTargetStoryboardCount(event.target.value)
+  event.target.value = value || ''
+  targetStoryboardCount.value = value
+  saveBreakdownSetting('target_storyboard_count', value)
+}
+
 async function refresh() {
   try {
     drama.value = await dramaAPI.get(dramaId)
     const ep = drama.value.episodes?.find(e => (e.episode_number || e.episodeNumber) === episodeNumber)
     if (ep) {
       episode.value = ep
+      breakdownMode.value = normalizeBreakdownMode(ep.breakdown_mode || ep.breakdownMode)
+      targetEpisodeDuration.value = normalizeTargetEpisodeDuration(ep.target_duration ?? ep.targetDuration)
+      targetStoryboardCount.value = normalizeTargetStoryboardCount(ep.target_storyboard_count ?? ep.targetStoryboardCount)
       try { chars.value = await episodeAPI.characters(ep.id) } catch { chars.value = [] }
       try { scenes.value = await episodeAPI.scenes(ep.id) } catch { scenes.value = [] }
       try { propItems.value = await episodeAPI.props(ep.id) } catch { propItems.value = [] }
@@ -2895,7 +3013,7 @@ async function batchVideoPrompts() {
   // 选择模式下有勾选 → 仅补齐所选；否则全量补齐缺失
   const ids = (videoSelectMode.value && selectedVideoSbIds.value.length) ? [...selectedVideoSbIds.value] : undefined
   try {
-    const res = await episodeAPI.generateVideoPrompts(epId.value, chatModelOverride(), chatConfigId(), ids)
+    const res = await episodeAPI.generateVideoPrompts(epId.value, chatModelOverride(), chatConfigId(), ids, effectiveVideoModelLabel.value)
     if (!res?.total) {
       if (res?.already_running) {
         videoPromptBatch.value = { running: true, total: 0, completed: 0 }
@@ -2946,8 +3064,20 @@ function doBreakdown() {
   const propList = propItems.value.length
     ? propItems.value.map(p => `${p.name}(ID:${p.id})`).join('、')
     : '（当前集还没有道具）'
+  const customPlan = breakdownMode.value === 'custom'
+    ? (() => {
+        const range = episodeDurationRange(targetEpisodeDuration.value)
+        const count = targetStoryboardCount.value || Math.max(1, Math.round(targetEpisodeDuration.value / 12))
+        return `
+本次使用自定义拆分模式。
+本集目标总时长：约 ${targetEpisodeDuration.value} 秒；允许范围：${range.min}-${range.max} 秒。
+目标分镜数量：约 ${count} 个（仅作软参考；如果目标数量与模型单段时长限制冲突，以对白、节拍、连续性和模型限制为准）。
+请按目标规划，但不要为了凑时长或凑数量添加无效镜头。`
+      })()
+    : ''
   runAgent('storyboard_breaker', `请基于当前集剧本拆分分镜，并为每个分镜段落同时生成 video_prompt（视频生成提示词）。
-本次视频模型：${effectiveVideoModelLabel.value}，请按该模型的特性与时长限制生成 video_prompt。
+本次视频模型：${effectiveVideoModelLabel.value}。请先命中对应的视频提示词格式支线（Seedance 2.5 / Seedance 2.0 / MiniMax H3），再按该模型的特性与时长限制生成 video_prompt；不要使用其他模型的格式。
+${customPlan}
 
 当前集已有角色：${charList}
 当前集已有场景：${sceneList}
@@ -2967,22 +3097,41 @@ async function onBreakdownDone() {
   if (missing.length) batchVideoPrompts()
 }
 
+function rebreakSelectedStoryboard() {
+  const sb = selectedSb.value
+  if (!sb || !sb.id || rn.value) return
+  const selectedId = sb.id
+  const index = sbs.value.findIndex(item => item.id === selectedId)
+  const shotNumber = index >= 0 ? index + 1 : sb.storyboard_number || sb.storyboardNumber || 0
+  const duration = Number(sb.duration || 10)
+  runAgent('storyboard_breaker', `只重新拆分当前选中的一个分镜，不要重新拆分整集。
+selected_storyboard_id: ${selectedId}
+当前分镜编号：${shotNumber}
+当前分镜目标时长：${duration} 秒
+本次视频模型：${effectiveVideoModelLabel.value}。请按该模型的提示词格式支线生成 video_prompt。
+
+请先调用 read_storyboard_context，找到 selected_storyboard_id 对应的现有分镜。根据当前分镜原有画面、台词、氛围、角色、场景和道具，重新组织该分镜内部的【镜头N】子镜头，使动作、对白和时长更合理；只调用 rebreak_storyboard 保存该 ID 的 description、atmosphere、duration、绑定和 video_prompt。
+禁止调用 save_storyboards，禁止传 replace_existing，禁止修改其他分镜、剧本、角色、场景、道具或媒体记录。`, dramaId, epId.value, async () => {
+    await refresh()
+    selectedSb.value = sbs.value.find(item => item.id === selectedId) || selectedSb.value
+  }, chatModelOverride(), chatConfigId())
+}
+
 // 按需为单个分镜生成视频提示词：由 prompt_generator 读取分镜字段生成并保存到 video_prompt
 async function genVideoPrompt(sb) {
   if (!sb || videoPromptGeneratingIds.value.includes(sb.id)) return
   const idx = sbs.value.indexOf(sb) + 1
-  const cfg = selectedVideoConfig.value
-  const label = cfg ? `${cfg.name} (${cfg.provider})` : '默认'
+  const label = effectiveVideoModelLabel.value || '默认'
   const charNames = getStoryboardCharacters(sb).map(c => c.name).join('、') || '无'
   const propNames = getStoryboardProps(sb).map(p => p.name).join('、') || '无'
   videoPromptGeneratingIds.value.push(sb.id)
   try {
     await api.post(`/agent/prompt_generator/chat`, {
-      message: `请为分镜 #${idx}(ID:${sb.id})生成视频提示词(video_prompt)。视频模型:${label},请根据该模型的特性和时长限制生成。
+      message: `请为分镜 #${idx}(ID:${sb.id})生成视频提示词(video_prompt)。目标视频模型:${label}。请先命中对应的视频提示词格式支线（Seedance 2.5 / Seedance 2.0 / MiniMax H3），再按该模型的特性和时长限制生成，不要混用其他模型格式。
 
 该分镜信息:时长 ${sb.duration || 10}s;场景:${getSceneName(sb) || '未绑定'};角色:${charNames};道具:${propNames}。
 
-请先调用 read_storyboard_context 获取该分镜的画面描述(含【镜头N】子镜头与台词/旁白)、氛围及时长,据此生成 video_prompt(按 3 秒分段换行、用 @角色名/@场景名/@道具名 引用参考素材；段落内允许多镜头切镜,但不跨场景,切镜点对齐 description 的【镜头N】结构),然后调用 update_storyboard 保存到分镜 ID:${sb.id}。只更新 video_prompt 字段,不要改动其他字段,不要重新拆分整集。`,
+请先调用 read_storyboard_context 获取该分镜的画面描述(含【镜头N】子镜头与台词/旁白)、氛围及时长,据此按命中的格式支线生成 video_prompt；场景、角色和道具继续用 @角色名/@场景名/@道具名 引用参考素材，然后调用 update_storyboard 保存到分镜 ID:${sb.id}。只更新 video_prompt 字段,不要改动其他字段,不要重新拆分整集。`,
       drama_id: dramaId,
       episode_id: epId.value,
       model: chatModelOverride() || undefined,
@@ -4329,6 +4478,35 @@ onMounted(() => setTimeout(() => autoTour('episode', EPISODE_TOUR, t), 900))
 /* Production content */
 .prod-content { flex: 1; overflow-y: auto; padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 10px; }
 .prod-section-bar { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+.episode-breakdown-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 26px;
+  padding: 2px 7px;
+  border: 1px solid var(--surface-outline);
+  border-radius: 999px;
+  background: var(--surface-muted);
+  color: var(--text-2);
+  font-size: 10.5px;
+  white-space: nowrap;
+}
+.episode-breakdown-control select,
+.episode-breakdown-control input {
+  min-width: 0;
+  height: 22px;
+  padding: 1px 5px;
+  border: 1px solid var(--surface-outline-strong);
+  border-radius: 6px;
+  background: var(--bg-input);
+  color: var(--text-0);
+  font-size: 11px;
+  font-family: var(--font-mono);
+  font-weight: 650;
+}
+.episode-breakdown-control input { width: 52px; text-align: center; }
+.episode-breakdown-control select { max-width: 92px; font-family: inherit; }
+.breakdown-warning { color: var(--warning); border-color: var(--warning); }
 
 /* 资产栏动作：提取（虚线中性）与批量生成（强调色）视觉分组 */
 .asset-bar-actions { align-items: center; }

@@ -34,6 +34,9 @@ export const sqliteSchemaStatements = [
     script_content TEXT,
     description TEXT,
     duration INTEGER DEFAULT 0,
+    breakdown_mode TEXT DEFAULT 'auto',
+    target_duration INTEGER DEFAULT 165,
+    target_storyboard_count INTEGER DEFAULT 0,
     status TEXT DEFAULT 'draft',
     video_url TEXT,
     thumbnail TEXT,
@@ -329,14 +332,18 @@ export const stylePresetSeeds = [
     description: '美式漫画粗线条风格',
   },
   {
-    name: '真人影视剧质感', value: 'live-action', sortOrder: 6,
-    prompt: 'Photorealistic live-action cinematic drama style, fictional human actors, natural skin texture, realistic facial anatomy and body proportions, authentic wardrobe and real-world production design, physically accurate materials, professional film lighting, natural color grading, 35mm lens, shallow depth of field, subtle film grain, cinematic composition, consistent actor identity across shots, natural human motion, realistic facial expressions, stable identity, natural cloth and hair movement, cinematic camera movement, physically plausible motion, no cartoon, no anime, no 3D CGI, no plastic skin, no waxy face, no illustration, no morphing, no flicker, no rubbery motion',
-    description: '真人影视剧摄影、灯光和自然人物运动质感，适合现代与现实题材',
+    name: '真人影视剧质感',
+    value: 'live-action',
+    sortOrder: 6,
+    prompt: 'Photorealistic live-action cinematic drama style, performed by fictional human actors, natural skin texture with realistic pores, accurate facial anatomy and natural body proportions, authentic wardrobe with tangible fabric textures, real-world production design with physically accurate materials, professional film lighting, natural cinematic color grading, shot on 35mm lens, shallow depth of field, subtle organic film grain, classic cinematic composition. Consistent character identity across all shots, natural human motion, realistic micro-expressions, natural cloth and hair dynamics, smooth cinematic camera movement, physically plausible motion mechanics. No cartoon stylization, no anime aesthetic, no overt 3D CGI render look, no plastic smooth skin, no waxy over-processed face, no illustrated style, no morphing distortion, no frame flicker, no rubbery stiff motion',
+    description: '真人影视剧统一实拍质感，涵盖电影级摄影布光、自然人物动态与真实材质表现，适配现代现实题材创作'
   },
   {
-    name: '真人影视短剧·古风玄幻', value: 'live-action-xianxia', sortOrder: 10,
-    prompt: 'Photorealistic live-action Chinese xianxia fantasy short-drama style, fictional human actors, realistic facial anatomy and natural skin texture, authentic ancient Chinese costumes, detailed silk and layered fabric, historically inspired hair and accessories, grand misty mountains, celestial palaces, clouds, spiritual energy and restrained magical effects integrated with physically believable lighting, cinematic production design, professional film lighting, atmospheric depth, 35mm lens, natural skin tones, controlled color grading, consistent actor identity, consistent costume and prop continuity across shots, natural human motion, realistic sword movement, believable wind and fabric physics, cinematic camera movement, no anime, no 3D cartoon, no game-render look, no plastic skin, no modern clothing, no excessive neon, no text or watermark, no morphing, no flicker, no rubbery motion',
-    description: '真人影视短剧的古装、仙山、云海、法阵和电影级玄幻特效质感',
+    name: '真人影视短剧·古风玄幻',
+    value: 'live-action-xianxia',
+    sortOrder: 10,
+    prompt: 'Photorealistic live-action Chinese xianxia fantasy short drama, performed by fictional human actors, realistic facial anatomy with natural skin texture, authentic ancient Chinese costumes with detailed silk layers and textured fabrics, historically inspired hair styling and accessories, grand misty immortal mountains, celestial palaces, sea of clouds, restrained spiritual energy and magical effects integrated with physically believable lighting, cinematic production design, professional film lighting, rich atmospheric depth, shot on 35mm lens, natural skin tones, unified controlled color grading, consistent actor appearance, strict costume and prop continuity across all shots, natural human motion, realistic sword handling, believable wind and fabric physics, smooth cinematic camera movement. No anime, no 3D cartoon stylization, no game engine render look, no plastic smooth skin, no modern clothing, no excessive neon glow, no text or watermark, no morphing distortion, no frame flicker, no rubbery stiff motion',
+    description: '真人实拍古风玄幻短剧统一视觉风格，电影级写实质感，涵盖写实古装、仙山云海、克制玄幻特效与跨镜头形象道具一致性'
   },
   {
     name: '国风 2.5D', value: 'guofeng', sortOrder: 7,
@@ -388,6 +395,39 @@ export function initSqliteSchema(sqlite: Database.Database) {
   for (const statement of sqliteSchemaStatements) {
     sqlite.exec(statement)
   }
+
+  const episodeColumns = new Set(
+    (sqlite.prepare('PRAGMA table_info(episodes)').all() as Array<{ name?: string }>)
+      .map(column => column.name)
+      .filter((name): name is string => Boolean(name)),
+  )
+  const episodeMigrations = [
+    ['breakdown_mode', "ALTER TABLE episodes ADD COLUMN breakdown_mode TEXT DEFAULT 'auto'"],
+    ['target_duration', 'ALTER TABLE episodes ADD COLUMN target_duration INTEGER DEFAULT 165'],
+    ['target_storyboard_count', 'ALTER TABLE episodes ADD COLUMN target_storyboard_count INTEGER DEFAULT 0'],
+  ] as const
+  for (const [column, statement] of episodeMigrations) {
+    if (!episodeColumns.has(column)) sqlite.exec(statement)
+  }
+
+  // 历史版本曾把分镜秒数除以 60 后写入 episodes.duration；启动时只按已有分镜回算，
+  // 不触碰没有分镜的集，也不改变剧本、资产或媒体记录。
+  sqlite.exec(`
+    UPDATE episodes
+    SET duration = COALESCE((
+      SELECT SUM(COALESCE(s.duration, 0))
+      FROM storyboards s
+      WHERE s.episode_id = episodes.id
+        AND s.deleted_at IS NULL
+    ), 0)
+    WHERE EXISTS (
+      SELECT 1
+      FROM storyboards s
+      WHERE s.episode_id = episodes.id
+        AND s.deleted_at IS NULL
+    )
+  `)
+
   const insertSeed = sqlite.prepare(SEED_SQL)
   const upgradeSeed = sqlite.prepare(UPGRADE_SQL)
   const removeSeed = sqlite.prepare(REMOVE_SQL)

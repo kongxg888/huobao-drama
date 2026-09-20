@@ -45,9 +45,9 @@ function characterImagePrompt(char: typeof schema.characters.$inferSelect, style
     char.name,
     char.appearance || char.description || '人物立绘',
     char.styling || '',
-    '16:9 横版角色定妆照',
-    '半身角色海报构图',
-    '正面',
+    '16:9 横向角色设定参考图',
+    '四视图真人身份母版：左侧正面身体视图、中央背面身体视图，均显示肩部以下身体直至脚部，头部、脸部、下巴、耳朵、头发和颈部完全不入画；右侧为右上正面头肩近景、右下右侧 45 度头肩近景',
+    '四个视图中的人物身份、体态比例、服装和必要配饰完全一致',
     '高质量',
     '白色背景',
   ].filter(Boolean).join(', ')
@@ -102,7 +102,7 @@ app.post('/:id/generate-image', async (c) => {
   }
 })
 
-// POST /characters/:id/generate-prompt — 独立生成/重新生成三视图最终提示词（不生图）
+// POST /characters/:id/generate-prompt — 独立生成/重新生成四视图身份母版最终提示词（不生图）
 app.post('/:id/generate-prompt', async (c) => {
   const id = Number(c.req.param('id'))
   const body = await c.req.json()

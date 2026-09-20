@@ -7,7 +7,32 @@ description: Video prompt specification — generates a time-segmented video-gen
 
 From a single storyboard segment's description (containing the 【镜头N】 sub-shot structure and dialogue/narration) / atmosphere / duration, generate the `video_prompt` that drives AI video generation. **One storyboard segment = one 8-15-second video, with cuts allowed inside it**: consecutive segments may be different shots (change of shot size/angle/subject), joined with hard cuts; but the whole segment **never crosses scenes** and never uses flashbacks.
 
-## Format
+## Model format branches (route first)
+
+Read the target video model from the user message and use exactly one branch. Do not mix Seedance and MiniMax H3 dialects. The branch changes only `video_prompt` wording; keep the storyboard's bound assets and `@name` anchors unchanged.
+
+### Seedance 2.5 (`seedance-2.5`)
+
+- Use the fixed seven-section order: `【画幅风格】` → `【场景资产】` → `【核心人物】` → `【站位声明】` → `【时间轴分镜】` → `【音效】` → `【强制禁止项】`.
+- Put `【接续状态】` as the final line inside `【时间轴分镜】`, not as an eighth section. Use non-overlapping ranges such as `镜头 1 [0:00–0:03]`; duration is 4-30 seconds.
+- Dialogue uses `{character speaks in Chinese: “verbatim line”}`, sound uses `<sound>`, and music uses `（music）`; do not add subtitles unless the storyboard asks for them. Keep `@Character/@Scene/@Prop` anchors.
+
+### Seedance 2.0 (`seedance-2.0`)
+
+- Use the same seven sections, but describe shot order and relative pauses instead of treating exact second-by-second timestamps as guaranteed; duration is 4-15 seconds.
+- Do not use 2.5-only first/last-frame, edit/extend, or sound-control assumptions. Extract dialogue only from the matching description sub-shot and keep the sound section as post-production sound guidance.
+
+### MiniMax H3 (`minimax-h3`)
+
+- Do not use the generic header plus 3-second lines. With references, use these six English fields as one prompt: `subject_definitions`, `summary`, `retention_analysis`, `detailed_description: [Shot 1] ...`, `overall_soundscape`, `non_diegetic_music`.
+- For explicit text-to-video without references, use `integrated_multimodal_description`, `overall_soundscape`, and `non_diegetic_music`; keep `[Shot 1]` even for one shot.
+- Keep H3 field names in English, preserve Chinese dialogue, and retain this APP's `@name` anchors. The current APP does not compile bindings into `<Picture N>`, so do not output `<Picture N>` as the only reference. Duration is 4-15 seconds; use `N/A` for music only when no music is requested.
+
+### Fallback
+
+Use the generic format below only when the target model matches none of the three branches.
+
+## Generic fallback format
 
 The **first line of the `video_prompt` is the header**: first introduce which characters and scene appear in this video, then follow with the time segments. Characters and scenes are always referenced with @ (during generation they are replaced with the corresponding reference-image markers, so the video model first locks onto "who" and "where").
 

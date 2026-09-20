@@ -6,6 +6,11 @@ import { toSnakeCaseArray, toSnakeCase } from '../utils/transform.js'
 import { getActiveConfigId } from '../services/ai.js'
 import { EXTRACT_TARGETS, getExtractionStatus, startExtraction, type ExtractTarget } from '../services/extraction.js'
 import { getVideoPromptBatchStatus, startVideoPromptBatch } from '../services/video-prompts.js'
+import {
+  normalizeEpisodeBreakdownMode,
+  normalizeEpisodeTargetDuration,
+  normalizeTargetStoryboardCount,
+} from '../services/episode-duration.js'
 
 const app = new Hono()
 
@@ -47,6 +52,9 @@ app.post('/', async (c) => {
     title: ep.title,
     image_config_id: ep.imageConfigId,
     video_config_id: ep.videoConfigId,
+    breakdown_mode: ep.breakdownMode,
+    target_duration: ep.targetDuration,
+    target_storyboard_count: ep.targetStoryboardCount,
     resolution: ep.resolution,
   })
 })
@@ -56,7 +64,10 @@ app.put('/:id', async (c) => {
   const id = Number(c.req.param('id'))
   const body = await c.req.json()
 
-  const allowed = ['content', 'script_content', 'title', 'description', 'status', 'resolution']
+  const allowed = [
+    'content', 'script_content', 'title', 'description', 'status', 'resolution',
+    'breakdown_mode', 'target_duration', 'target_storyboard_count',
+  ]
   const updates: Record<string, any> = {}
   for (const key of allowed) {
     if (key in body) updates[key] = body[key]
@@ -65,6 +76,9 @@ app.put('/:id', async (c) => {
   if ('resolution' in updates && !['480p', '720p', '1080p'].includes(updates.resolution)) {
     return badRequest(c, 'resolution 只支持 480p / 720p / 1080p')
   }
+  if ('breakdown_mode' in updates) updates.breakdown_mode = normalizeEpisodeBreakdownMode(updates.breakdown_mode)
+  if ('target_duration' in updates) updates.target_duration = normalizeEpisodeTargetDuration(updates.target_duration)
+  if ('target_storyboard_count' in updates) updates.target_storyboard_count = normalizeTargetStoryboardCount(updates.target_storyboard_count)
 
   // Map snake_case to camelCase for drizzle
   const drizzleUpdates: Record<string, any> = { updatedAt: now() }
@@ -74,6 +88,9 @@ app.put('/:id', async (c) => {
   if ('description' in updates) drizzleUpdates.description = updates.description
   if ('status' in updates) drizzleUpdates.status = updates.status
   if ('resolution' in updates) drizzleUpdates.resolution = updates.resolution
+  if ('breakdown_mode' in updates) drizzleUpdates.breakdownMode = updates.breakdown_mode
+  if ('target_duration' in updates) drizzleUpdates.targetDuration = updates.target_duration
+  if ('target_storyboard_count' in updates) drizzleUpdates.targetStoryboardCount = updates.target_storyboard_count
 
   await db.update(schema.episodes).set(drizzleUpdates).where(eq(schema.episodes.id, id))
   return success(c)
@@ -152,7 +169,11 @@ app.post('/:id/generate-video-prompts', async (c) => {
   const storyboardIds = Array.isArray(body.storyboard_ids)
     ? body.storyboard_ids.map(Number).filter((n: number) => Number.isInteger(n) && n > 0)
     : undefined
-  const result = await startVideoPromptBatch(ep.id, ep.dramaId, { model: body.model || undefined, configId: body.config_id ?? undefined }, storyboardIds)
+  const result = await startVideoPromptBatch(ep.id, ep.dramaId, {
+    model: body.model || undefined,
+    configId: body.config_id ?? undefined,
+    videoModel: body.video_model || undefined,
+  }, storyboardIds)
   if (result.total === -1) return success(c, { status: 'running', already_running: true })
   if (!result.started) return success(c, { status: 'idle', total: 0 })
   return success(c, { status: 'running', total: result.total })

@@ -22,6 +22,10 @@ test('video prompt batch service runs per-shot async agent loop', () => {
   // 进度跟踪与文本模型覆盖
   assert.match(svc, /current_storyboard_id/)
   assert.match(svc, /modelOverride: opts\.model/)
+  // 视频模型单独传递，不能把文本模型或配置名称当成视频模型
+  assert.match(svc, /videoModel\?: string/)
+  assert.match(svc, /opts\.videoModel/)
+  assert.match(svc, /videoPromptDialectHint/)
 })
 
 test('episodes route exposes video prompt batch endpoints', () => {
@@ -31,5 +35,16 @@ test('episodes route exposes video prompt batch endpoints', () => {
   assert.match(route, /app\.get\('\/:id\/video-prompts-status'/)
   assert.match(route, /startVideoPromptBatch\(ep\.id, ep\.dramaId/)
   assert.match(route, /body\.storyboard_ids/)
+  assert.match(route, /body\.video_model/)
   assert.match(route, /already_running/)
+})
+
+test('frontend batch request carries the selected target video model', () => {
+  const api = read('../frontend/app/composables/useApi.ts')
+  const episode = read('../frontend/app/views/drama/episode.vue')
+
+  assert.match(api, /generateVideoPrompts: \(id: number, model\?: string, configId\?: number, storyboardIds\?: number\[\], videoModel\?: string\)/)
+  assert.match(api, /video_model: videoModel \|\| undefined/)
+  assert.match(episode, /generateVideoPrompts\(epId\.value, chatModelOverride\(\), chatConfigId\(\), ids, effectiveVideoModelLabel\.value\)/)
+  assert.match(episode, /视频提示词格式支线/)
 })

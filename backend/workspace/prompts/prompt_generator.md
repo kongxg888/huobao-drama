@@ -13,7 +13,7 @@ model: ""
 
 工作流程：
 1. 调用 read_characters / read_scenes / read_props 读取资产信息
-2. 按对应资产的技能规范（角色三视图 / 场景固定视角 / 道具白底单品）创作最终提示词
+2. 按对应资产的技能规范（角色四视图身份母版 / 场景固定视角 / 道具白底单品）创作最终提示词
 3. 调用 save_character_final_prompt / save_scene_final_prompt / save_prop_final_prompt 逐个保存
 
 硬性规则：**场景图 = 无人物空镜**。场景描述里即使提到人物活动，也必须完全剔除，场景图中不能出现任何的人（含背影、剪影、倒影、照片里的人），只保留场景本身。
@@ -24,7 +24,7 @@ model: ""
 
 工作流程：
 1. 调用 read_storyboard_context 读取该分镜的 description（含【镜头N】子镜头与台词/旁白）、atmosphere、duration 及绑定的场景/角色
-2. 据此生成 video_prompt：按 3 秒为一段、每段单独一行换行分隔；description 的每个【镜头N】映射为 1-2 个连续 3 秒段（顺序一致、不遗漏、不新增子镜头），台词/旁白从对应【镜头N】内的「角色名说：「…」」「旁白：…」提取，不要创作 description 之外的新台词；提到场景用 @场景名、提到角色用 @角色名（名字必须与列表完全一致）；氛围光线取自 atmosphere。一个分镜段落内允许切镜（换景别/角度/对象），段与段之间可以是不同镜头，但不跨场景；切镜点对齐分镜 description 的【镜头N】结构
+2. 先根据用户消息中的目标视频模型命中 `prompt-generator/video-prompt` 的格式支线：Seedance 2.5、Seedance 2.0 使用对应七段式，MiniMax H3 使用固定英文字段结构，其他模型才使用通用 3 秒分段格式。命中支线后，description 的每个【镜头N】仍须顺序映射、不得漏写或创作新子镜头；台词/旁白只从对应【镜头N】提取；场景、角色、道具继续用 @名字引用，名字必须与列表完全一致；氛围光线取自 atmosphere；一个分镜段落内允许切镜，但不跨场景
 3. 生成时会自动把 @名字 替换为对应参考图片标记（如 @小明 → @图片1小明），因此名字必须精确匹配场景/角色列表，不要缩写或加额外符号
 4. 调用 update_storyboard 保存时参数只传两个键：storyboard_id 和 video_prompt。不要回传该分镜的其他任何字段（title、description、scene_id 等一律不传）
 

@@ -21,6 +21,12 @@ One storyboard = one **storyboard segment** = one video-generation task.
 3. **Total-volume anchoring**: target total duration = script character count ÷ 500 characters/minute; segment count ≈ target total duration ÷ 12 seconds, with ±20% tolerance. Do not significantly overshoot or undershoot
 4. **Split sub-shots within each segment**: cut sub-shots at action-change points, viewpoint-change points, and subject-change points; after filling in all fields for each segment, call `save_storyboards` to save them in one go
 
+## Breakdown Modes
+
+- **Automatic breakdown (default):** when the user gives no explicit custom parameters, keep the original behavior: let beats, dialogue duration, and video-model limits determine segment count and duration, then use the full-episode replacement flow of `save_storyboards`.
+- **Custom breakdown:** only when the user explicitly selects custom mode, use the requested target duration, allowed range, and optional target segment count as soft guidance; never create filler shots just to hit a count.
+- **Rebreak the selected storyboard:** when the user asks to rebreak only the selected storyboard, reorganize only that storyboard's `【镜头N】` sub-shots, `duration`, `atmosphere`, bindings, and `video_prompt` through the single-storyboard update tool; never clear the episode or call `save_storyboards` with `replace_existing`.
+
 ## Pacing-Tier Durations
 
 Determine duration by the segment's function — do not use one size for all:
@@ -74,6 +80,11 @@ Dialogue that does not fit must be moved to the next segment; cramming unperform
 - Prop close-up segments (without characters) should also bind the prop; `character_ids` may be empty
 - Do not bind background items or set dressing irrelevant to the plot; segments with no props pass an empty array
 - Bound props serve as reference images for video generation (white-background product shots), keeping the prop's appearance consistent across segments
+
+## Video prompt model branches
+
+- The user message provides the target video model. When creating `video_prompt`, route to the Seedance 2.5, Seedance 2.0, or MiniMax H3 branch in `prompt-generator/video-prompt`; use the generic 3-second format only for other models. Never mix dialects.
+- The branch changes only `video_prompt`; keep the description sub-shot source, asset bindings, and single-scene constraint unchanged.
 
 ## Quality Requirements
 

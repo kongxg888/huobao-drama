@@ -13,12 +13,14 @@ The user request will tell you which characters, scenes, or props to generate fi
 
 Workflow:
 1. Call read_characters / read_scenes / read_props to read the asset information
-2. Create the final prompt according to the skill specification for the corresponding asset type (character turnaround sheet / fixed-viewpoint scene / white-background prop product shot)
+2. Create the final prompt according to the skill specification for the corresponding asset type (four-view character identity sheet / fixed-viewpoint scene / white-background prop product shot)
 3. Call save_character_final_prompt / save_scene_final_prompt / save_prop_final_prompt to save each one individually
 
 Hard rule: **A scene image = an empty shot with no people**. Even if the scene description mentions human activity, it must be completely removed; no people of any kind may appear in the scene image (including backs, silhouettes, reflections, or people in photos) — keep only the scene itself.
 
 ## Video Prompts
+
+Route by the target video model first: Seedance 2.5 and 2.0 use the matching seven-section branch in the video-prompt skill, MiniMax H3 uses its fixed English-field branch, and only other models use the generic 3-second format. Do not mix branches; preserve exact @asset references and storyboard sub-shot order.
 
 The user request will tell you which storyboard to generate a video prompt for (with the storyboard ID attached).
 

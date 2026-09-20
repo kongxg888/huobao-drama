@@ -10,6 +10,7 @@ import { eq } from 'drizzle-orm'
 import { now } from '../../utils/response.js'
 import { logTaskProgress, logTaskSuccess } from '../../utils/task-logger.js'
 import { getDramaId, getEpisodeId } from '../context.js'
+import { sumStoryboardDurationSeconds } from '../../services/episode-duration.js'
 
 async function syncStoryboardCharacters(storyboardId: number, characterIds: number[]) {
   await db.delete(schema.storyboardCharacters)
@@ -324,12 +325,10 @@ const saveStoryboards = createTool({
     // 整集时长 = 当前全部存活分镜时长之和（分批保存时不能再按单批累加）
     const allRows = await db.select().from(schema.storyboards)
       .where(eq(schema.storyboards.episodeId, episodeId))
-    const totalDuration = allRows
-      .filter(sb => !sb.deletedAt)
-      .reduce((sum, sb) => sum + (sb.duration || 0), 0)
+    const totalDuration = sumStoryboardDurationSeconds(allRows.filter(sb => !sb.deletedAt))
 
     await db.update(schema.episodes)
-      .set({ duration: Math.ceil(totalDuration / 60), updatedAt: ts })
+      .set({ duration: totalDuration, updatedAt: ts })
       .where(eq(schema.episodes.id, episodeId))
 
     logTaskSuccess('StoryboardTool', 'save-complete', {
@@ -436,4 +435,78 @@ const updateStoryboard = createTool({
   },
 })
 
-export const storyboardTools = { readStoryboardContext, saveStoryboards, updateStoryboard }
+const rebreakStoryboard = createTool({
+  id: 'rebreak_storyboard',
+  description: 'Rebuild only the selected storyboard. Never clear or replace the episode storyboard list.',
+  inputSchema: z.object({
+    storyboard_id: z.number(),
+    title: z.string().optional(),
+    shot_type: z.string().optional(),
+    angle: z.string().optional(),
+    movement: z.string().optional(),
+    location: z.string().optional(),
+    time: z.string().optional(),
+    result: z.string().optional(),
+    atmosphere: z.string().optional(),
+    description: z.string().optional(),
+    video_prompt: z.string().optional(),
+    duration: z.number().optional(),
+    scene_id: z.number().nullable().optional(),
+    character_ids: z.array(z.number()).optional(),
+    prop_ids: z.array(z.number()).optional(),
+  }),
+  execute: async ({ storyboard_id, ...fields }, context) => {
+    const ids = requireIds(context)
+    if ('error' in ids) return ids
+    const { episodeId, dramaId } = ids
+    const [storyboard] = await db.select().from(schema.storyboards)
+      .where(eq(schema.storyboards.id, storyboard_id))
+    if (!storyboard || storyboard.episodeId !== episodeId) {
+      return { error: `Storyboard ${storyboard_id} not found in the current episode` }
+    }
+
+    await validateStoryboardBindings(
+      episodeId,
+      dramaId,
+      'scene_id' in fields ? fields.scene_id : storyboard.sceneId,
+      fields.character_ids,
+      fields.prop_ids,
+    )
+
+    const ts = now()
+    const updates: Record<string, any> = { updatedAt: ts }
+    if ('title' in fields) updates.title = fields.title
+    if ('shot_type' in fields) updates.shotType = fields.shot_type
+    if ('angle' in fields) updates.angle = fields.angle
+    if ('movement' in fields) updates.movement = fields.movement
+    if ('location' in fields) updates.location = fields.location
+    if ('time' in fields) updates.time = fields.time
+    if ('result' in fields) updates.result = fields.result
+    if ('atmosphere' in fields) updates.atmosphere = fields.atmosphere
+    if ('description' in fields) updates.description = fields.description
+    if ('video_prompt' in fields) updates.videoPrompt = fields.video_prompt
+    if ('duration' in fields) updates.duration = fields.duration
+    if ('scene_id' in fields) updates.sceneId = fields.scene_id
+
+    await db.update(schema.storyboards).set(updates)
+      .where(eq(schema.storyboards.id, storyboard_id))
+    if ('character_ids' in fields) await syncStoryboardCharacters(storyboard_id, fields.character_ids || [])
+    if ('prop_ids' in fields) await syncStoryboardProps(storyboard_id, fields.prop_ids || [])
+
+    const allRows = await db.select().from(schema.storyboards)
+      .where(eq(schema.storyboards.episodeId, episodeId))
+    const totalDuration = sumStoryboardDurationSeconds(allRows.filter(sb => !sb.deletedAt))
+    await db.update(schema.episodes).set({ duration: totalDuration, updatedAt: ts })
+      .where(eq(schema.episodes.id, episodeId))
+
+    logTaskSuccess('StoryboardTool', 'rebreak-selected-complete', {
+      episodeId,
+      storyboardId: storyboard_id,
+      totalDuration,
+      updatedFields: Object.keys(updates),
+    })
+    return { message: `Storyboard ${storyboard_id} rebroken`, storyboard_id, total_duration: totalDuration }
+  },
+})
+
+export const storyboardTools = { readStoryboardContext, saveStoryboards, updateStoryboard, rebreakStoryboard }

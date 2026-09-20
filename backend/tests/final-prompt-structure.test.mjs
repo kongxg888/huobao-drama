@@ -30,22 +30,27 @@ test('grid prompt agent tools save agent-written final prompts with style inject
   assert.doesNotMatch(tools, /generate_scene_prompt/)
 })
 
-test('prompt agent instructions reference per-asset skills; skill files define the specs', () => {
+test('prompt agent instructions use the four-view character identity sheet', () => {
   const agents = read('src/agents/index.ts')
   const charSkill = read('workspace/skills/prompt-generator/character-prompt/SKILL.md')
   const sceneSkill = read('workspace/skills/prompt-generator/scene-prompt/SKILL.md')
 
   // 三类图片规范入口（具体创作规则在各自 SKILL.md 中）
-  assert.match(agents, /角色三视图/)
+  assert.match(agents, /角色四视图/)
   assert.match(agents, /场景固定视角/)
   assert.match(agents, /道具白底单品/)
   // 保存工具约定
   assert.match(agents, /save_character_final_prompt/)
   assert.match(agents, /save_scene_final_prompt/)
-  // 角色三视图 / 场景固定视角的必备要素由技能文件承载（纯中文输出）
-  assert.match(charSkill, /正脸特写/)
-  assert.match(charSkill, /正面、90 度侧面、背面/)
-  assert.match(charSkill, /三个视图的脸、发型和服装完全一致/)
+  // 角色四视图 / 场景固定视角的必备要素由技能文件承载（纯中文输出）
+  assert.match(charSkill, /四个视图/)
+  assert.match(charSkill, /正面身体视图/)
+  assert.match(charSkill, /背面身体视图/)
+  assert.match(charSkill, /右侧 45 度头部近景/)
+  assert.match(charSkill, /显示肩部以下身体直至脚部/)
+  assert.match(charSkill, /头部、脸部、下巴、耳朵、头发和颈部完全不入画/)
+  assert.match(charSkill, /四个视图中的人物身份、体态比例、服装和必要配饰完全一致/)
+  assert.doesNotMatch(charSkill, /角色三视图|三张全身视图/)
   assert.match(charSkill, /输出使用会话语言指令指定的目标语言/)
   assert.match(sceneSkill, /固定机位广角镜头/)
   assert.match(sceneSkill, /前景（\[前景元素\]）、中景（\[中景主体空间\]）、后景（\[后景纵深\]）/)
