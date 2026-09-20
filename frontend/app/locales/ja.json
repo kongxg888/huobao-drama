@@ -502,6 +502,14 @@
       "rewriting": "脚本をリライト中...",
       "scriptPlaceholder": "書式付き脚本の内容...",
       "rawRequired": "先に原文を入力してください",
+      "rewriteMode": "リライト方式",
+      "rewriteModeNormalize": "形式を整理",
+      "rewriteModeShortDrama": "実写ショートドラマ化",
+      "rewriteModeDialoguePolish": "セリフを磨く",
+      "rewriteCustomLabel": "今回の追加要件（任意）",
+      "rewriteCustomPlaceholder": "例：元の結末を残し、新しい登場人物は加えず、二人の対立するセリフを強める",
+      "rewriteCustomHint": "今回のリライトだけに適用。形式と原文の重要な事実が優先されます",
+      "rewriteSaveFailed": "原文を保存できなかったため、リライトを開始していません",
       "skipDone": "AI リライトをスキップしました。原文をそのまま使用します"
     },
     "prod": {

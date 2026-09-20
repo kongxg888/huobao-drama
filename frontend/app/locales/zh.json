@@ -502,6 +502,14 @@
       "rewriting": "正在改写剧本...",
       "scriptPlaceholder": "格式化剧本内容...",
       "rawRequired": "请先填写原始内容",
+      "rewriteMode": "改写方式",
+      "rewriteModeNormalize": "规范整理",
+      "rewriteModeShortDrama": "真人短剧化",
+      "rewriteModeDialoguePolish": "台词润色",
+      "rewriteCustomLabel": "本次额外要求（可选）",
+      "rewriteCustomPlaceholder": "例如：保留原结局，不新增角色，只加强两人的对抗对白",
+      "rewriteCustomHint": "只作用于本次改写，格式和原文关键事实仍然优先",
+      "rewriteSaveFailed": "原始内容保存失败，暂未开始改写",
       "skipDone": "已跳过 AI 改写，当前将直接使用原始内容"
     },
     "prod": {

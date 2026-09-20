@@ -502,6 +502,14 @@
       "rewriting": "대본을 재작성하는 중...",
       "scriptPlaceholder": "형식화된 대본 내용...",
       "rawRequired": "먼저 원문을 입력하세요",
+      "rewriteMode": "재작성 방식",
+      "rewriteModeNormalize": "형식 정리",
+      "rewriteModeShortDrama": "실사 숏드라마화",
+      "rewriteModeDialoguePolish": "대사 다듬기",
+      "rewriteCustomLabel": "이번 추가 요구사항 (선택)",
+      "rewriteCustomPlaceholder": "예: 원래 결말을 유지하고 인물을 추가하지 않으며 두 사람의 대립 대사를 강화",
+      "rewriteCustomHint": "이번 재작성에만 적용되며 형식과 원문의 핵심 사실이 우선합니다",
+      "rewriteSaveFailed": "원문을 저장하지 못해 재작성을 시작하지 않았습니다",
       "skipDone": "AI 재작성을 건거이습니다. 원문을 그대로 사용합니다"
     },
     "prod": {

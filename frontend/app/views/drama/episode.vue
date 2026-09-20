@@ -181,7 +181,7 @@
             </div>
             <div class="toolbar-right">
               <span v-if="rawLen" class="char-count">{{ t('episode.script.charCount', { n: rawLen }) }}</span>
-              <button class="btn btn-sm" @click="saveRaw(); toast.success(t('episode.script.saved'))">
+              <button class="btn btn-sm" @click="saveRawWithToast">
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
                 {{ t('common.save') }}
               </button>
@@ -215,6 +215,35 @@
                 {{ t('episode.script.rewriteAgain') }}
               </button>
             </div>
+          </div>
+
+          <div class="rewrite-options">
+            <div class="rewrite-option-group">
+              <div class="rewrite-option-label">{{ t('episode.script.rewriteMode') }}</div>
+              <div class="rewrite-mode-list">
+                <button
+                  v-for="mode in rewriteModes"
+                  :key="mode.key"
+                  type="button"
+                  class="rewrite-mode-btn"
+                  :class="{ active: rewriteMode === mode.key }"
+                  @click="rewriteMode = mode.key"
+                >
+                  {{ mode.label }}
+                </button>
+              </div>
+            </div>
+            <label class="rewrite-option-group">
+              <span class="rewrite-option-label">{{ t('episode.script.rewriteCustomLabel') }}</span>
+              <textarea
+                v-model="rewriteInstructions"
+                class="textarea rewrite-custom-input"
+                rows="2"
+                maxlength="1000"
+                :placeholder="t('episode.script.rewriteCustomPlaceholder')"
+              />
+              <span class="rewrite-option-hint">{{ t('episode.script.rewriteCustomHint') }}</span>
+            </label>
           </div>
 
           <div v-if="!scriptContent && !rn" class="step-empty">
@@ -1472,6 +1501,13 @@ const panel = ref(['production', 'export'].includes(storedPanel?.panel) ? stored
 const { running: rn, runningType: rt, run: runAgent } = useAgent()
 
 const localRaw = ref(''), localScript = ref('')
+const rewriteMode = ref('normalize')
+const rewriteInstructions = ref('')
+const rewriteModes = computed(() => [
+  { key: 'normalize', label: t('episode.script.rewriteModeNormalize') },
+  { key: 'short_drama', label: t('episode.script.rewriteModeShortDrama') },
+  { key: 'dialogue_polish', label: t('episode.script.rewriteModeDialoguePolish') },
+])
 const rawContent = computed(() => episode.value?.content || '')
 const scriptContent = computed(() => episode.value?.script_content || episode.value?.scriptContent || '')
 const epId = computed(() => episode.value?.id || 0)
@@ -2674,11 +2710,43 @@ async function refresh() {
   await Promise.all([loadGenTasks(), loadExportMerges()])
 }
 
-function saveRaw() { episodeAPI.update(epId.value, { content: localRaw.value }); episode.value.content = localRaw.value }
+async function saveRaw() {
+  await episodeAPI.update(epId.value, { content: localRaw.value })
+  episode.value.content = localRaw.value
+}
+async function saveRawWithToast() {
+  try {
+    await saveRaw()
+    toast.success(t('episode.script.saved'))
+  } catch (error) {
+    toastError(error, { fallback: 'episode.script.rewriteSaveFailed' })
+  }
+}
 function saveScr() { episodeAPI.update(epId.value, { script_content: localScript.value }); episode.value.script_content = localScript.value }
 // 发给 Agent 的 message 是功能性提示词而非 UI 文案：产出语言由后端全局「内容语言」指令控制，
 // 这里保持中文不随界面语言变化
-function doRewrite() { saveRaw(); runAgent('script_rewriter', '请读取剧本并改写为格式化剧本，然后保存', dramaId, epId.value, refresh, chatModelOverride(), chatConfigId()) }
+async function doRewrite() {
+  const raw = (localRaw.value || rawContent.value || '').trim()
+  if (!raw) {
+    toast.warning(t('episode.script.rawRequired'))
+    return
+  }
+  try {
+    await saveRaw()
+  } catch (error) {
+    toastError(error, { fallback: 'episode.script.rewriteSaveFailed' })
+    return
+  }
+
+  const custom = rewriteInstructions.value.trim()
+  const message = [
+    '请读取当前集原始剧本，改写完成后保存。',
+    `改写模式：${rewriteMode.value}`,
+    `本次额外要求：${custom || '无'}`,
+    '必须调用 rewrite_to_screenplay 并传入上述 mode 和 instructions；保存失败时根据工具错误修正后再次调用 save_script。',
+  ].join('\n')
+  runAgent('script_rewriter', message, dramaId, epId.value, refresh, chatModelOverride(), chatConfigId())
+}
 function skipRewrite() {
   const raw = (localRaw.value || rawContent.value || '').trim()
   if (!raw) {
@@ -3965,6 +4033,20 @@ onMounted(() => setTimeout(() => autoTour('episode', EPISODE_TOUR, t), 900))
   font-family: var(--font-body); background: var(--bg-input); color: var(--text-0);
 }
 .fill-textarea:focus { box-shadow: none; }
+.rewrite-options {
+  display: grid; gap: 12px; padding: 14px 18px;
+  background: var(--surface-raised); border-bottom: 1px solid var(--border); flex-shrink: 0;
+}
+.rewrite-option-group { display: flex; flex-direction: column; gap: 6px; }
+.rewrite-option-label { font-size: 11px; font-weight: 700; color: var(--text-1); }
+.rewrite-mode-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.rewrite-mode-btn {
+  border: 1px solid var(--border); background: var(--surface-muted); color: var(--text-2);
+  border-radius: 999px; padding: 6px 12px; font-size: 11px; cursor: pointer;
+}
+.rewrite-mode-btn.active { border-color: var(--accent); background: var(--accent-bg); color: var(--accent-text); }
+.rewrite-custom-input { min-height: 54px; resize: vertical; }
+.rewrite-option-hint { font-size: 10px; color: var(--text-3); }
 
 /* Step Empty State */
 .step-empty {

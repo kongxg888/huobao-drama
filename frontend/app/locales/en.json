@@ -502,6 +502,14 @@
       "rewriting": "Rewriting the script...",
       "scriptPlaceholder": "Formatted script content...",
       "rawRequired": "Please fill in the raw content first",
+      "rewriteMode": "Rewrite mode",
+      "rewriteModeNormalize": "Normalize",
+      "rewriteModeShortDrama": "Live-action short drama",
+      "rewriteModeDialoguePolish": "Dialogue polish",
+      "rewriteCustomLabel": "Additional requirements (optional)",
+      "rewriteCustomPlaceholder": "Example: Keep the original ending, add no characters, and strengthen their confrontation dialogue",
+      "rewriteCustomHint": "Applies only to this rewrite; the format and key facts in the source take priority",
+      "rewriteSaveFailed": "Could not save the raw content; rewrite has not started",
       "skipDone": "AI rewrite skipped; the raw content will be used directly"
     },
     "prod": {

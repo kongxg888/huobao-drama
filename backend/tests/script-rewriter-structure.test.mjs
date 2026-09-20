@@ -45,3 +45,16 @@ test('script rewriter rules keep one format and expose the three modes', () => {
   assert.match(fallback, /dialogue_polish/)
   assert.match(fallback, /save_script/)
 })
+
+test('episode rewrite UI sends the selected mode and custom requirements', () => {
+  const episode = read('../frontend/app/views/drama/episode.vue')
+
+  assert.match(episode, /rewriteMode/)
+  assert.match(episode, /rewriteInstructions/)
+  assert.match(episode, /normalize/)
+  assert.match(episode, /short_drama/)
+  assert.match(episode, /dialogue_polish/)
+  assert.match(episode, /改写模式/)
+  assert.match(episode, /rewriteCustomLabel/)
+  assert.match(episode, /saveRaw\(\)/)
+})
