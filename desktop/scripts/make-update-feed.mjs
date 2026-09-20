@@ -29,8 +29,8 @@ function argOf(flag) {
 
 const pkg = JSON.parse(fs.readFileSync(path.join(DESKTOP, 'package.json'), 'utf8'))
 const version = pkg.version
-const productName = pkg.productName || 'HuobaoDrama'
-const repo = process.env.GITHUB_REPO || 'chatfire-AI/huobao-drama'
+const productName = pkg.productName || '吉祥Ai短剧'
+const repo = process.env.GITHUB_REPO || 'kongxg888/huobao-drama'
 const baseUrl = argOf('--base-url')
   || process.env.UPDATE_BASE_URL
   || `https://github.com/${repo}/releases/download/v${version}`

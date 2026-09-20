@@ -1,4 +1,4 @@
-# 🎬 Huobao Drama - AI ショートドラマ生成プラットフォーム
+# 🎬 吉祥Ai短剧 - AI ショートドラマ生成プラットフォーム
 
 <div align="center">
 
@@ -7,20 +7,20 @@
 [![Node Version](https://img.shields.io/badge/Node.js-20+-339933?style=flat&logo=node.js)](https://nodejs.org)
 [![Vue Version](https://img.shields.io/badge/Vue-3.x-4FC08D?style=flat&logo=vue.js)](https://vuejs.org)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
-[![ダウンロード](https://img.shields.io/github/v/release/chatfire-AI/huobao-drama?style=flat&logo=github&label=%E3%83%80%E3%82%A6%E3%83%B3%E3%83%AD%E3%83%BC%E3%83%89)](https://github.com/chatfire-AI/huobao-drama/releases/latest)
+[![ダウンロード](https://img.shields.io/github/v/release/kongxg888/huobao-drama?style=flat&logo=github&label=%E3%83%80%E3%82%A6%E3%83%B3%E3%83%AD%E3%83%BC%E3%83%89)](https://github.com/kongxg888/huobao-drama/releases/latest)
 
 [English](README.md) | [简体中文](README.zh-CN.md) | **日本語** | [한국어](README.ko.md)
 
 [機能](#-機能) • [クイックスタート](#-クイックスタート) • [チュートリアル](#-チュートリアル画像付き) • [デスクトップ版](#-デスクトップアプリ推奨) • [デプロイ](#-デプロイ)
 
-<h2>🔑 <a href="https://api.firemux.com">Huobao API Key を取得 👉 今すぐ見る</a></h2>
+<h2>🔑 <a href="https://www.8788123.xyz">Jixiang API Key を取得 👉 今すぐ見る</a></h2>
 
 **テキスト・画像・動画のすべての AI 機能を、1 つの Key で有効化**
 
-デプロイ後、「設定 → 火宝クイック設定」に Key を貼るだけで、3 つの推奨設定をワンクリックで書き込み
+デプロイ後、「設定 → 吉祥クイック設定」に Key を貼るだけで、3 つの推奨設定をワンクリックで書き込み
 
-<h3>📥 <a href="https://github.com/chatfire-AI/huobao-drama/releases/latest">デスクトップ版をダウンロード（macOS / Windows）</a></h3>
-<h3>🌐 <a href="https://www.chatfire.site">公式サイト</a></h3>
+<h3>📥 <a href="https://github.com/kongxg888/huobao-drama/releases/latest">デスクトップ版をダウンロード（macOS / Windows）</a></h3>
+<h3>🌐 <a href="https://github.com/kongxg888/huobao-drama">プロジェクトリポジトリ</a></h3>
 
 </div>
 
@@ -28,7 +28,7 @@
 
 ## 📖 プロジェクト概要
 
-Huobao Drama は AI ベースのショートドラマ自動制作プラットフォームです。脚本生成、キャラクターデザイン、分镜制作から動画合成まで、全工程を自動化します。
+吉祥Ai短剧 は AI ベースのショートドラマ自動制作プラットフォームです。脚本生成、キャラクターデザイン、分镜制作から動画合成まで、全工程を自動化します。
 
 ### 🎯 コアバリュー
 
@@ -133,7 +133,7 @@ data/       — 生成アセットと SQLite データベース
 
 ```bash
 # リポジトリをクローン
-git clone https://github.com/chatfire-AI/huobao-drama.git
+git clone https://github.com/kongxg888/huobao-drama.git
 cd huobao-drama
 
 # バックエンドの依存をインストール
@@ -201,7 +201,7 @@ cd backend && npx tsx scripts/import-mysql-to-sqlite.ts
 起動後、すべての AI 機能（テキスト/画像/動画）を使うには、先にモデルサービスの設定が必要です。未設定の場合、ページ上部にバナーで案内されます：
 
 1. 「設定」ページを開く
-2. 「火宝クイック設定」に Huobao API Key を貼る（[api.firemux.com で取得](https://api.firemux.com)）。テキスト・画像・動画の 3 つの推奨設定をワンクリックで書き込み
+2. 「吉祥クイック設定」に Jixiang API Key を貼る（[www.8788123.xyz で取得](https://www.8788123.xyz)）。テキスト・画像・動画の 3 つの推奨設定をワンクリックで書き込み
 3. または「手動テンプレート」でプロバイダーごとに追加。接続テストに対応
 
 設定が完了するとバナーは自動で消え、エピソード制作を開始できます。
@@ -226,7 +226,7 @@ cd backend && npx tsx scripts/import-mysql-to-sqlite.ts
 
 ### ステップ 2 · AI サービス設定（初回）
 
-設定ページの「火宝クイック設定」に API キーを貼り付けると推奨 3 設定を一括書き込み。手動テンプレートでの追加も可能です。使用モデルは上部バーでいつでも切り替えられます（ステップ 5 参照）。
+設定ページの「吉祥クイック設定」に API キーを貼り付けると推奨 3 設定を一括書き込み。手動テンプレートでの追加も可能です。使用モデルは上部バーでいつでも切り替えられます（ステップ 5 参照）。
 
 <p align="center">
   <img src="docs/screenshots/03-settings-quick.png" alt="AI サービス設定" width="800">
@@ -284,23 +284,23 @@ cd backend && npx tsx scripts/import-mysql-to-sqlite.ts
 
 ### 🖥️ デスクトップアプリ（推奨）
 
-**⬇️ ビルド済みインストーラー: [GitHub Releases](https://github.com/chatfire-AI/huobao-drama/releases/latest) · [中国向けミラー（Tencent COS）](https://installer.chatfire.site/huobao-drama/v4.0.4/)**
+**⬇️ ビルド済みインストーラー: [GitHub Releases](https://github.com/kongxg888/huobao-drama/releases/latest)**
 
 | プラットフォーム | ダウンロードファイル |
 |---|---|
-| macOS（Apple Silicon、M シリーズ） | `HuobaoDrama-4.0.4-arm64.dmg` |
-| macOS（Intel） | `HuobaoDrama-4.0.4.dmg` |
-| Windows | `HuobaoDrama.Setup.4.0.4.exe` |
+| macOS（Apple Silicon、M シリーズ） | `吉祥Ai短剧-5.0.0-arm64.dmg` |
+| macOS（Intel） | `吉祥Ai短剧-5.0.0.dmg` |
+| Windows | `吉祥Ai短剧 Setup 5.0.0.exe` |
 
-> 中国本土では GitHub が不安定なため、Tencent COS ミラーをご利用ください。アプリ内アップデーターも COS を優先し、GitHub にフォールバックします。
+> アプリ内アップデーターは、デフォルトで吉祥Ai短剧の GitHub Releases からバージョン情報を確認します。必要に応じて `HUOBAO_UPDATE_FEED` で別のミラーを指定できます。
 
 **コマンドラインインストール（推奨・修復不要）**：curl でのダウンロードは macOS の隔離属性が付かないため、「壊れている」警告なしでそのまま起動できます（Apple Silicon は `-arm64.dmg`、Intel は無印の dmg）：
 
 ```bash
-curl -L -o /tmp/HuobaoDrama.dmg https://installer.chatfire.site/huobao-drama/v4.0.4/HuobaoDrama-4.0.4-arm64.dmg \
-  && hdiutil attach -nobrowse /tmp/HuobaoDrama.dmg \
-  && cp -R /Volumes/HuobaoDrama*/HuobaoDrama.app /Applications/ \
-  && hdiutil detach /Volumes/HuobaoDrama*
+curl -L -o /tmp/JixiangAiShortDrama.dmg https://github.com/kongxg888/huobao-drama/releases/download/v5.0.0/%E5%90%89%E7%A5%A5Ai%E7%9F%AD%E5%89%A7-5.0.0-arm64.dmg \
+  && hdiutil attach -nobrowse /tmp/JixiangAiShortDrama.dmg \
+  && cp -R /Volumes/吉祥Ai短剧*/吉祥Ai短剧.app /Applications/ \
+  && hdiutil detach /Volumes/吉祥Ai短剧*
 ```
 
 ビルド不要 —— dmg/exe をダウンロードしてそのままインストールできます。インストール済みクライアントは内蔵アップデーターで自動更新されます。（ソースから自分でパッケージングする場合は以下のコマンドを参照。）
@@ -313,23 +313,23 @@ npm run dist        # macOS dmg（arm64 + Intel）
 npm run dist:win    # Windows NSIS インストーラー（win-x64、macOS 上でクロスビルド可能）
 
 # 成果物
-# desktop/release/HuobaoDrama-<バージョン>-arm64.dmg      (Apple Silicon)
-# desktop/release/HuobaoDrama-<バージョン>.dmg            (Intel)
-# desktop/release/HuobaoDrama Setup <バージョン>.exe      (Windows)
+# desktop/release/吉祥Ai短剧-<バージョン>-arm64.dmg      (Apple Silicon)
+# desktop/release/吉祥Ai短剧-<バージョン>.dmg            (Intel)
+# desktop/release/吉祥Ai短剧 Setup <バージョン>.exe      (Windows)
 ```
 
 インストール時の注意：
 
 - macOS 未署名パッケージは初回起動時に「Appが壊れているため開けません」と表示される場合があります（Apple Silicon で多発）。これは Gatekeeper の隔離属性によるもので、ファイルは壊れていません。修復方法は 2 つあります：
   1. **dmg に修復スクリプトを同梱**：アプリを「アプリケーション」にドラッグした後、dmg ウィンドウ下部の「如提示已损坏请双击我.command」をダブルクリックすれば自動で修復されます；
-  2. またはターミナルで `sudo xattr -cr /Applications/HuobaoDrama.app` を実行。
+  2. またはターミナルで `sudo xattr -cr /Applications/吉祥Ai短剧.app` を実行。
 
   修復は初回の 1 回だけ。その後は普通に起動でき、アプリ内自動更新にも影響しません。
 - Windows 未署名パッケージは SmartScreen で「詳細情報 → 実行」を選択
 - ユーザーデータディレクトリ：`~/Library/Application Support/HuobaoDrama/`（データベース、生成メディア、オンライン編集したスキルのコピー）
 - FFmpeg/FFprobe バイナリ内蔵。システムへのインストール不要
 - Electron は 37.x に固定：better-sqlite3 の win32 プリビルドがこの ABI までしか対応していないため（クロスパッケージでコンパイル不要にする鍵）
-- アプリ内の外部リンク（「api.firemux.com で Key を取得」など）はシステムブラウザで直接開きます
+- アプリ内の外部リンク（「www.8788123.xyz で Key を取得」など）はシステムブラウザで直接開きます
 
 #### 🔄 アプリ内更新（Apple 署名不要）
 
@@ -491,7 +491,7 @@ A: インストール不要です。プロジェクトに `ffmpeg-static` / `ffp
 
 ### Q: ページ上部に「モデル未設定」と表示される？
 
-A: 初回デプロイ時の正常な案内です。「設定」ページで「火宝クイック設定」に API Key を貼ってワンクリックで書き込むか、「手動テンプレート」でプロバイダーを追加してください。テキスト・画像・動画の 3 類すべてに有効な設定があるとバナーは自動で消えます。
+A: 初回デプロイ時の正常な案内です。「設定」ページで「吉祥クイック設定」に API Key を貼ってワンクリックで書き込むか、「手動テンプレート」でプロバイダーを追加してください。テキスト・画像・動画の 3 類すべてに有効な設定があるとバナーは自動で消えます。
 
 ### Q: フロントエンドがバックエンド API に接続できない？
 
@@ -542,7 +542,7 @@ A: バックエンドは初回起動時に全テーブルを自動作成しま�
   - `docker/init.sql` とエクスポートスクリプトを追加（DBA レビュー / 事前テーブル作成）
 - 初回利用ガイド
   - AI サービス未設定時にサイト上部にバナーを表示し設定ページへ誘導
-  - 設定ページに「火宝クイック設定」を追加：1 つの Key でテキスト/画像/動画の 3 つの推奨設定を書き込み
+  - 設定ページに「吉祥クイック設定」を追加：1 つの Key でテキスト/画像/動画の 3 つの推奨設定を書き込み
   - モデル未設定エラーの中国語化と設定ページへの誘導
 - 動画モデルのデフォルトを Seedance 2.0 Fast に変更
 - プロバイダー集約：OpenAI / Gemini / Volcano Engine のみ残存

@@ -1,8 +1,8 @@
 /**
  * 应用内更新器（无 Apple 签名方案，同 Tauri updater 思路）
  *
- * - 清单：HUOBAO_UPDATE_FEED；未设置时双源 —— 国内 COS 优先，GitHub Releases 兜底
- *   （两个源返回同一份清单结构，仅下载 URL 域名不同，见 desktop/scripts/publish-release.mjs）
+ * - 清单：HUOBAO_UPDATE_FEED；未设置时使用自有 GitHub Releases
+ *   （清单由 desktop/scripts/publish-release.mjs 生成）
  * - macOS：下载 zip（.app 归档）→ sha256 校验 → 解压 → 旧包改名 .old 备胎 → 新包就位
  *   → `open` 拉起新应用 → 当前实例退出；下次启动清理 .old
  * - Windows：下载 Setup.exe → sha256 校验 → detached 静默安装（/S）→ 当前实例退出
@@ -18,12 +18,11 @@ import { spawn, execFile } from 'child_process'
 
 const PRODUCT_NAME = '吉祥Ai短剧'
 
-// 双源：COS（国内直连）优先，GitHub（海外）兜底；HUOBAO_UPDATE_FEED 可整体覆盖
+// 自有仓库为默认更新源；HUOBAO_UPDATE_FEED 可整体覆盖，便于私有部署或镜像。
 const FEED_URLS = process.env.HUOBAO_UPDATE_FEED
   ? [process.env.HUOBAO_UPDATE_FEED]
   : [
-    'https://installer.chatfire.site/huobao-drama/latest.json',
-    'https://github.com/chatfire-AI/huobao-drama/releases/latest/download/latest.json',
+    'https://github.com/kongxg888/huobao-drama/releases/latest/download/latest.json',
   ]
 
 export interface UpdateState {
@@ -76,7 +75,7 @@ function platformKey(): string {
 
 /** 已安装 app 的 .app 路径（仅 macOS、打包态有效） */
 function installedAppBundle(): string {
-  // process.execPath = .../HuobaoDrama.app/Contents/MacOS/HuobaoDrama
+  // process.execPath = .../吉祥Ai短剧.app/Contents/MacOS/吉祥Ai短剧
   return path.resolve(path.dirname(process.execPath), '..', '..')
 }
 

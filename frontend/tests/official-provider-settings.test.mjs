@@ -40,9 +40,10 @@ test('settings page exposes official provider templates only', () => {
   assert.doesNotMatch(settingsPage, /https:\/\/dashscope\.aliyuncs\.com/)
   assert.doesNotMatch(settingsPage, /https:\/\/api\.vidu\.com/)
   assert.doesNotMatch(settingsPage, /\['ali'|'ali',|, 'ali'\]/)
-  assert.match(settingsPage, /火宝快捷配置/)
-  assert.match(settingsPage, /https:\/\/api\.firemux\.com/)
-  assert.match(settingsPage, /applyHuobaoQuickConfig/)
+  assert.match(settingsPage, /吉祥快捷配置/)
+  assert.match(settingsPage, /https:\/\/www\.8788123\.xyz/)
+  assert.doesNotMatch(settingsPage, /href="https:\/\/api\.firemux\.com"/)
+  assert.match(settingsPage, /applyJixiangQuickConfig/)
   assert.doesNotMatch(settingsPage, /https:\/\/api\.minimax\.io/)
 })
 
@@ -91,8 +92,8 @@ test('settings page offers the supported official provider presets', () => {
   assert.doesNotMatch(settingsPage, /audio:\s*\{/)
 })
 
-test('Huobao quick config includes Wan 3.0 through the Qwen gateway route', () => {
-  const quickStart = settingsPage.indexOf('const huobaoQuickConfigs = [')
+test('Jixiang quick config includes Wan 3.0 through the Qwen gateway route', () => {
+  const quickStart = settingsPage.indexOf('const jixiangQuickConfigs = [')
   assert.notEqual(quickStart, -1)
   const quickConfigs = settingsPage.slice(quickStart, settingsPage.indexOf('\n]', quickStart) + 2)
   assert.match(quickConfigs, /provider:\s*'aliyun'/)

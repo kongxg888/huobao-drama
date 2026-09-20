@@ -12,7 +12,7 @@ const routeBlock = (source, route) => {
   return source.slice(start, next === -1 ? source.length : next)
 }
 
-test('backend provider registry does not expose ChatFire as a model provider', () => {
+test('backend provider registry does not expose the retired gateway as a model provider', () => {
   const registry = read('src/services/adapters/registry.ts')
   const ai = read('src/services/ai.ts')
   const aiConfigRoute = read('src/routes/aiConfigs.ts')

@@ -7,20 +7,20 @@
 [![Node Version](https://img.shields.io/badge/Node.js-20+-339933?style=flat&logo=node.js)](https://nodejs.org)
 [![Vue Version](https://img.shields.io/badge/Vue-3.x-4FC08D?style=flat&logo=vue.js)](https://vuejs.org)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
-[![Download](https://img.shields.io/github/v/release/chatfire-AI/huobao-drama?style=flat&logo=github&label=Download)](https://github.com/chatfire-AI/huobao-drama/releases/latest)
+[![Download](https://img.shields.io/github/v/release/kongxg888/huobao-drama?style=flat&logo=github&label=Download)](https://github.com/kongxg888/huobao-drama/releases/latest)
 
 **English** | [简体中文](README.zh-CN.md) | [日本語](README.ja.md) | [한국어](README.ko.md)
 
 [Features](#-features) • [Quick Start](#-quick-start) • [Walkthrough](#-visual-walkthrough) • [Desktop App](#-desktop-app-recommended) • [Deployment](#-deployment)
 
-<h2>🔑 <a href="https://api.firemux.com">Get a Huobao API Key 👉 Get started</a></h2>
+<h2>🔑 <a href="https://www.8788123.xyz">Get a Jixiang API Key 👉 Get started</a></h2>
 
 **Text, image, and video AI capabilities — one key unlocks everything**
 
-After deploying, paste the key in "Settings → Huobao Quick Setup" to write three recommended configs in one click
+After deploying, paste the key in "Settings → Jixiang Quick Config" to write three recommended configs in one click
 
-<h3>📥 <a href="https://github.com/chatfire-AI/huobao-drama/releases/latest">Download Desktop App (macOS / Windows)</a></h3>
-<h3>🌐 <a href="https://www.chatfire.site">Official Website</a></h3>
+<h3>📥 <a href="https://github.com/kongxg888/huobao-drama/releases/latest">Download Desktop App (macOS / Windows)</a></h3>
+<h3>🌐 <a href="https://github.com/kongxg888/huobao-drama">Project Repository</a></h3>
 
 </div>
 
@@ -133,7 +133,7 @@ No config files — everything is set via environment variables (all have defaul
 
 ```bash
 # Clone the repository
-git clone https://github.com/chatfire-AI/huobao-drama.git
+git clone https://github.com/kongxg888/huobao-drama.git
 cd huobao-drama
 
 # Install backend dependencies
@@ -201,7 +201,7 @@ cd backend && npx tsx scripts/import-mysql-to-sqlite.ts
 All AI features (text/image/video) require model services to be configured first — a banner at the top of the page guides you until then:
 
 1. Open the "Settings" page
-2. Paste your Huobao API key in "Huobao Quick Setup" ([get one at api.firemux.com](https://api.firemux.com)) to write three recommended configs (text, image, video) in one click
+2. Paste your Jixiang API key in "Jixiang Quick Config" ([get one at www.8788123.xyz](https://www.8788123.xyz)) to write three recommended configs (text, image, video) in one click
 3. Or add providers one by one via "Manual Templates", with connectivity testing
 
 Once configured, the banner disappears and you can start producing episodes.
@@ -215,7 +215,7 @@ The fork includes a `runninghub` image provider. In **Settings → AI Services �
 - **API Key**: your RunningHub API key (stored only in the local SQLite database)
 - **Model**: a full RunningHub catalog ID, for example `gpt-image-2.0/text-to-image/economy` or `gpt-image-2.0/edit/economy`
 
-RunningHub image generation is asynchronous. Huobao submits the task, polls `/openapi/v2/query`, downloads the result into the local image library, and writes the generated path back to the character, scene, prop, or storyboard record.
+RunningHub image generation is asynchronous. 吉祥Ai短剧 submits the task, polls `/openapi/v2/query`, downloads the result into the local image library, and writes the generated path back to the character, scene, prop, or storyboard record.
 
 The desktop package can be built after dependencies are installed:
 
@@ -247,7 +247,7 @@ Built-in visual styles include `真人影视剧质感` (`live-action`) and `真�
 
 ### Step 2 · Configure AI Services (first run)
 
-Paste an API key in Settings → "Huobao Quick Setup" to write the three recommended configs at once, or add providers manually. The current model can be switched any time from the top bar (see Step 5).
+Paste an API key in Settings → "Jixiang Quick Config" to write the three recommended configs at once, or add providers manually. The current model can be switched any time from the top bar (see Step 5).
 
 <p align="center">
   <img src="docs/screenshots/03-settings-quick.png" alt="AI service setup" width="800">
@@ -305,23 +305,23 @@ The episode list shows the production status of every episode — click "Enter S
 
 ### 🖥️ Desktop App (recommended)
 
-**⬇️ Prebuilt installers: [GitHub Releases](https://github.com/chatfire-AI/huobao-drama/releases/latest) · [Mirror for China (Tencent COS)](https://installer.chatfire.site/huobao-drama/v4.0.4/)**
+**⬇️ Prebuilt installers: [GitHub Releases](https://github.com/kongxg888/huobao-drama/releases/latest)**
 
 | Platform | File to download |
 |---|---|
-| macOS (Apple Silicon, M-series) | `HuobaoDrama-4.0.4-arm64.dmg` |
-| macOS (Intel) | `HuobaoDrama-4.0.4.dmg` |
-| Windows | `HuobaoDrama.Setup.4.0.4.exe` |
+| macOS (Apple Silicon, M-series) | `吉祥Ai短剧-5.0.0-arm64.dmg` |
+| macOS (Intel) | `吉祥Ai短剧-5.0.0.dmg` |
+| Windows | `吉祥Ai短剧 Setup 5.0.0.exe` |
 
-> China users: use the COS mirror above (GitHub is slow/unreachable in mainland China). The in-app updater also checks the COS mirror first, then falls back to GitHub.
+> The in-app updater uses your own GitHub Releases by default. Set `HUOBAO_UPDATE_FEED` to use a custom mirror.
 
 **Command-line install (recommended, no Gatekeeper fix needed)**: downloading via curl never sets macOS's quarantine attribute, so the app opens cleanly with no "damaged" prompt (use the `-arm64.dmg` for Apple Silicon, the plain dmg for Intel):
 
 ```bash
-curl -L -o /tmp/HuobaoDrama.dmg https://installer.chatfire.site/huobao-drama/v4.0.4/HuobaoDrama-4.0.4-arm64.dmg \
-  && hdiutil attach -nobrowse /tmp/HuobaoDrama.dmg \
-  && cp -R /Volumes/HuobaoDrama*/HuobaoDrama.app /Applications/ \
-  && hdiutil detach /Volumes/HuobaoDrama*
+curl -L -o /tmp/JixiangAiShortDrama.dmg https://github.com/kongxg888/huobao-drama/releases/download/v5.0.0/%E5%90%89%E7%A5%A5Ai%E7%9F%AD%E5%89%A7-5.0.0-arm64.dmg \
+  && hdiutil attach -nobrowse /tmp/JixiangAiShortDrama.dmg \
+  && cp -R /Volumes/吉祥Ai短剧*/吉祥Ai短剧.app /Applications/ \
+  && hdiutil detach /Volumes/吉祥Ai短剧*
 ```
 
 No build required — download the dmg/exe and install. Installed clients auto-update via the built-in updater. (To package from source instead, see the commands below.)
@@ -334,23 +334,23 @@ npm run dist        # macOS dmg (arm64 + Intel)
 npm run dist:win    # Windows NSIS installer (win-x64, cross-buildable on macOS)
 
 # Artifacts
-# desktop/release/HuobaoDrama-<version>-arm64.dmg     (Apple Silicon)
-# desktop/release/HuobaoDrama-<version>.dmg           (Intel)
-# desktop/release/HuobaoDrama Setup <version>.exe     (Windows)
+# desktop/release/吉祥Ai短剧-<version>-arm64.dmg     (Apple Silicon)
+# desktop/release/吉祥Ai短剧-<version>.dmg           (Intel)
+# desktop/release/吉祥Ai短剧 Setup <version>.exe     (Windows)
 ```
 
 Installation notes:
 
 - The macOS build is unsigned — on first launch you may see "App is damaged and can't be opened" (common on Apple Silicon). This is Gatekeeper's quarantine attribute, not actual file damage. Two ways to fix it:
   1. **The dmg bundles a fix script**: after dragging the app into Applications, double-click the "如提示已损坏请双击我.command" script at the bottom of the dmg window — it removes the quarantine attribute automatically;
-  2. Or run `sudo xattr -cr /Applications/HuobaoDrama.app` in Terminal.
+  2. Or run `sudo xattr -cr /Applications/吉祥Ai短剧.app` in Terminal.
 
   The fix is one-time only — the app then launches normally, and in-app auto-updates are not affected.
 - The Windows build is unsigned — SmartScreen will prompt "More info → Run anyway"
 - User-data directory: `~/Library/Application Support/HuobaoDrama/` (database, generated media, writable copies of online-edited skills)
 - FFmpeg/FFprobe binaries are bundled — no system install needed
 - Electron is pinned to 37.x: better-sqlite3's win32 prebuilds max out at that ABI (the key to compilation-free cross-packaging)
-- External links open in the system browser (e.g. "Get a key at api.firemux.com")
+- External links open in the system browser (e.g. "Get a key at www.8788123.xyz")
 
 #### 🔄 In-App Updates (no Apple signing required)
 
@@ -512,7 +512,7 @@ A: No install needed. The project bundles `ffmpeg-static` / `ffprobe-static` bin
 
 ### Q: The top of the page says "No model configured"?
 
-A: That's the normal first-deploy guidance. Go to "Settings" and use "Huobao Quick Setup" to paste an API key and write configs in one click, or add providers via "Manual Templates". The banner disappears once text, image, and video all have an enabled config.
+A: That's the normal first-deploy guidance. Go to "Settings" and use "Jixiang Quick Config" to paste an API key and write configs in one click, or add providers via "Manual Templates". The banner disappears once text, image, and video all have an enabled config.
 
 ### Q: The frontend can't reach the backend API?
 
@@ -562,7 +562,7 @@ A: The backend creates all tables automatically on first launch — check the lo
   - New `docker/init.sql` and export scripts (DBA review / pre-created tables)
 - First-use guidance
   - Site-wide banner guiding to Settings when no AI service is configured
-  - New "Huobao Quick Setup" in Settings: one key writes three recommended configs (text/image/video)
+  - New "Jixiang Quick Config" in Settings: one key writes three recommended configs (text/image/video)
   - Unconfigured-model errors localized with pointers to Settings
 - Default video model changed to Seedance 2.0 Fast
 - Provider consolidation: OpenAI / Gemini / Volcano Engine only

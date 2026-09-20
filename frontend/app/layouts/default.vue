@@ -29,7 +29,7 @@
       <div class="header-right">
         <a
           class="github-link"
-          href="https://github.com/chatfire-AI/huobao-drama"
+          href="https://github.com/kongxg888/huobao-drama"
           target="_blank"
           rel="noopener"
           aria-label="GitHub"
@@ -59,7 +59,7 @@
 import { LayoutGrid, Settings, TriangleAlert, Github } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 import { aiConfigAPI } from '~/composables/useApi'
-import brandLogo from '~/assets/huobao-logo.png'
+import brandLogo from '~/assets/jixiang-logo.png'
 
 const { t, locale } = useI18n()
 const route = useRoute()
@@ -144,7 +144,7 @@ watch(locale, checkAiConfigs)
 .brand-text { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.15; }
 .brand-name {
   font-size: 15px; font-weight: 700;
-  /* ChatFire 签名：品牌字标火焰橙渐变 */
+  /* 吉祥Ai 短剧品牌字标 */
   background: var(--accent-gradient);
   -webkit-background-clip: text;
   background-clip: text;
