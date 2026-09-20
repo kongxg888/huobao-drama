@@ -16,3 +16,32 @@ test('script rewrite tool exposes stable modes and validates before saving', () 
   assert.match(tools, /if \(!validation\.ok\)/)
   assert.match(tools, /Script saved/)
 })
+
+test('script rewriter rules keep one format and expose the three modes', () => {
+  const files = [
+    'workspace/skills/script-rewriter/SKILL.md',
+    'workspace/skills/script-rewriter/SKILL.en.md',
+    'workspace/skills/script-rewriter/SKILL.ja.md',
+    'workspace/skills/script-rewriter/SKILL.ko.md',
+    'workspace/prompts/script_rewriter.md',
+    'workspace/prompts/script_rewriter.en.md',
+    'workspace/prompts/script_rewriter.ja.md',
+    'workspace/prompts/script_rewriter.ko.md',
+  ]
+  for (const path of files) {
+    const source = read(path)
+    assert.match(source, /read_episode_script/)
+    assert.match(source, /rewrite_to_screenplay/)
+    assert.match(source, /save_script/)
+    assert.match(source, /normalize/)
+    assert.match(source, /short_drama/)
+    assert.match(source, /dialogue_polish/)
+    assert.match(source, /S01|S<number>|S编号/)
+    assert.doesNotMatch(source, /EP001-SC001/)
+  }
+
+  const fallback = read('src/agents/index.ts')
+  assert.match(fallback, /short_drama/)
+  assert.match(fallback, /dialogue_polish/)
+  assert.match(fallback, /save_script/)
+})

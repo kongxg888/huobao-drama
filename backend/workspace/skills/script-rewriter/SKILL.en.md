@@ -1,56 +1,45 @@
 ---
 name: script-rewriter
-description: Methodology and rules for rewriting a novel into a formatted script
+description: Methodology and rules for rewriting source material into a formatted short-drama screenplay
 ---
 
 # Script Rewriting Guide
 
-## Rewriting Principles
+## Workflow
 
-1. **Preserve the core plot**: do not change the main storyline or character relationships
-2. **Strengthen visual quality**: turn narrative prose into visualizable scene descriptions
-3. **Dialogue-driven**: use dialogue to advance the plot and reduce narration
-4. **Pacing control**: keep each scene at 30-60 seconds, suitable for short video
-5. **No camera language**: no shot sizes, angles, or camera moves — those belong to the storyboard-breakdown step
+1. Call `read_episode_script` to read the current episode's source content.
+2. Read `normalize`, `short_drama`, or `dialogue_polish` from the user request; use `normalize` when no mode is specified.
+3. Call `rewrite_to_screenplay` with the selected `mode` and the custom `instructions` for this run.
+4. Complete the full rewrite from the tool result; do not return suggestions only.
+5. Call `save_script`; if it returns a blocking validation error, revise and call `save_script` again.
 
-## Formatted-Script Format
+## Rule Priority
 
-```
-## S01 | INT · Coffee Shop | Dusk
+Explicit facts, character relationships, key events, ending, and user requirements outrank mode defaults; mode defaults outrank general polishing preferences. Do not invent a main plot event, major character, key location, world rule, or different ending just to make the story feel more dramatic.
 
-Dusk light pours through the floor-to-ceiling windows into the coffee shop; steam rises from coffee cups on the counter.
+## Three Modes
 
-Xiaoming sits alone in a corner booth, head down over his phone, looking somewhat anxious.
+- `normalize`: preserve the plot and organize scene headings, action paragraphs, and dialogue formatting; add only necessary visible action.
+- `short_drama`: clarify each scene's dramatic duty, character goal, resistance, visible action, directional change, and exit state; remove explanatory and templated writing without inventing plot.
+- `dialogue_polish`: preserve scene facts and action structure while improving dialogue purpose, voice, relationship pressure, subtext, and rhythm.
 
-The doorbell chimes as Xiaohong pushes the door open. She sees Xiaoming and walks over with a smile.
+## Short-Drama Revision Principles
 
-Xiaohong: (smiling) Have you been waiting long?
-Xiaoming: (looking up) Not really, just got here.
-```
+- Prefer actions, pauses, distance, object handling, looks, and sound reactions that the audience can see or hear.
+- Each scene should create a necessary change in information, power, relationship, emotion, pressure, risk, or physical state; transition and consequence scenes do not need an artificial opponent.
+- Each line of dialogue should pursue, avoid, test, pressure, confirm, redirect, threaten, comfort, or change a relationship. Do not repeat what the audience already sees.
+- Differentiate voices through identity, situation, relationship, and rhythm; do not force subtext without evidence.
+- Do not use a fixed 30–60-second word-count gate for every scene. Split scenes by playable action and dialogue rhythm.
+- Remove empty adjectives, summary slogans, and repeated transitions such as “at this moment” or “immediately after”.
 
-### Format Rules
+## Current Workbench Format
 
-- `## S<number> | INT/EXT · Location | Time period` — scene heading
-- Action description in natural paragraphs — no camera language of any kind
-- `CharacterName: (state/expression) line content` — dialogue format
+- Scene heading: `## S<number> | INT/EXT · Location | Time period`.
+- Action: natural paragraphs describing playable content; no shot size, angle, camera move, or other camera language.
+- Dialogue: `CharacterName: (state/expression) line content`.
+- Start at `S01` and increase continuously. For legacy scripts, a consistent `S1` sequence is accepted; do not mix styles.
+- Do not write video prompts, `@character` references, asset IDs, or explanatory analysis.
 
-### Content-Volume Reference
+## Final Self-Check
 
-The formatted script is about 20-30% longer than the original content; the increase mainly comes from scene-heading markers and dialogue formatting, not from expansion writing.
-
-## Rewriting Steps
-
-1. First call `read_episode_script` to read the original content
-2. Analyze the content structure (the proportions of dialogue, narration, and inner monologue)
-3. Call `rewrite_to_screenplay` to perform the rewriting
-4. Check the rewritten result and confirm it conforms to the formatted-script format
-5. Call `save_script` to save the final result
-
-## Notes
-
-- Inner monologue can be converted into character expressions/actions or voiceover
-- Split long narrative passages into multiple short scenes
-- Make sure every scene has a clear emotional turning point
-- Keep each character's language style consistent
-- Scene numbers increase consecutively (S01, S02, S03...)
-- Time periods must be specific (dusk, late night, early morning) — do not write a vague "daytime"
+Confirm that key source events, relationships, and the ending remain intact; every scene has body text; scene numbers are continuous; and the output contains only the screenplay. If the save tool returns an error, fix the result and call it again.
