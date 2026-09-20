@@ -1512,7 +1512,7 @@ const panel = ref(['production', 'export'].includes(storedPanel?.panel) ? stored
 const { running: rn, runningType: rt, run: runAgent } = useAgent()
 
 const localRaw = ref(''), localScript = ref('')
-const textImportInput = ref<HTMLInputElement | null>(null)
+const textImportInput = ref(null)
 const textImporting = ref(false)
 const rewriteMode = ref('normalize')
 const rewriteInstructions = ref('')
@@ -2738,8 +2738,8 @@ async function saveRawWithToast() {
 function openTextImport() {
   textImportInput.value?.click()
 }
-async function importTextFile(event: Event) {
-  const input = event.target as HTMLInputElement
+async function importTextFile(event) {
+  const input = event.target
   const file = input.files?.[0]
   input.value = ''
   if (!file) return

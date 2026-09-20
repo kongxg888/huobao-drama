@@ -102,15 +102,15 @@ git commit -m "test: define episode text import behavior"
 在脚本状态变量附近加入：
 
 ```ts
-const textImportInput = ref<HTMLInputElement | null>(null)
+const textImportInput = ref(null)
 const textImporting = ref(false)
 
 function openTextImport() {
   textImportInput.value?.click()
 }
 
-async function importTextFile(event: Event) {
-  const input = event.target as HTMLInputElement
+async function importTextFile(event) {
+  const input = event.target
   const file = input.files?.[0]
   input.value = ''
   if (!file) return
