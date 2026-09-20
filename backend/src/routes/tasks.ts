@@ -168,6 +168,7 @@ app.post('/', async (c) => {
         prompt: body.prompt,
         model: body.model,
         size: body.size,
+        resolution: body.resolution,
         referenceImages: body.reference_images,
         frameType: body.frame_type,
         configId,

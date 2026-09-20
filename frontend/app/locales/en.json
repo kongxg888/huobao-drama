@@ -453,7 +453,8 @@
       "viewFilm": "View Film",
       "continue": "Continue",
       "start": "Start Production",
-      "resolution": "Resolution"
+      "resolution": "Video resolution",
+      "imageResolution": "Image resolution"
     },
     "model": {
       "defaultWith": "Default · {model}",

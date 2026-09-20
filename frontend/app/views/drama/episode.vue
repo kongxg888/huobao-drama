@@ -38,6 +38,13 @@
             :show-config="imageModelMultiCfg"
           />
           <ModelSelect
+            v-if="isRunningHubImage"
+            v-model="imageResolution"
+            :label="t('episode.topbar.imageResolution')"
+            :options="imageResolutionOptions"
+            hide-default
+          />
+          <ModelSelect
             v-if="videoModelOptions.length"
             v-model="videoModel"
             :label="t('common.serviceType.video')"
@@ -1563,13 +1570,27 @@ const videoConfigs = ref([])
 const textConfigs = ref([])
 // 生成时可选模型：空串 = 跟随配置默认（models[0]）；选择持久化到 localStorage，刷新页面后保留
 const MODEL_STORE_KEYS = { chat: 'huobao:model:chat', image: 'huobao:model:image', video: 'huobao:model:video' }
+const IMAGE_RESOLUTION_STORE_KEY = 'huobao:image-resolution'
+const imageResolutionOptions = [
+  { key: '1k', model: '1K' },
+  { key: '2k', model: '2K' },
+  { key: '4k', model: '4K' },
+]
 function readStoredModel(key, legacyKey = '') {
   try { return localStorage.getItem(key) || (legacyKey && localStorage.getItem(legacyKey)) || '' } catch { return '' }
+}
+function readStoredImageResolution() {
+  try {
+    const value = localStorage.getItem(IMAGE_RESOLUTION_STORE_KEY)?.trim().toLowerCase()
+    return imageResolutionOptions.some(option => option.key === value) ? value : '4k'
+  } catch { return '4k' }
 }
 // 顶栏文本模型：适用于所有 Chat Agent 调用（改写/提取/拆镜/视频提示词/最终提示词），空串 = 跟随配置默认
 const chatModel = ref(readStoredModel(MODEL_STORE_KEYS.chat, 'huobao:model:rewrite'))
 const imageModel = ref(readStoredModel(MODEL_STORE_KEYS.image))
 const videoModel = ref(readStoredModel(MODEL_STORE_KEYS.video))
+// RunningHub 经济版默认按 1K 处理；工作台默认明确选择 4K，可在顶栏切换。
+const imageResolution = ref(readStoredImageResolution())
 function persistModel(modelRef, key) {
   watch(modelRef, v => {
     try { v ? localStorage.setItem(key, v) : localStorage.removeItem(key) } catch {}
@@ -1578,6 +1599,9 @@ function persistModel(modelRef, key) {
 persistModel(chatModel, MODEL_STORE_KEYS.chat)
 persistModel(imageModel, MODEL_STORE_KEYS.image)
 persistModel(videoModel, MODEL_STORE_KEYS.video)
+watch(imageResolution, value => {
+  try { localStorage.setItem(IMAGE_RESOLUTION_STORE_KEY, value) } catch {}
+})
 // 左侧菜单栏收起/展开：收起为窄图标栏给内容区让位，持久化到 localStorage
 const SIDEBAR_COLLAPSED_KEY = 'huobao:sidebar-collapsed'
 const sidebarCollapsed = ref((() => {
@@ -2108,6 +2132,18 @@ function hasMultiConfigs(options) {
 const textModelOptions = computed(() => collectModelOptions(textConfigs.value))
 const imageModelOptions = computed(() => collectModelOptions(imageConfigs.value))
 const videoModelOptions = computed(() => collectModelOptions(videoConfigs.value))
+const lockedImageConfigId = computed(() => episode.value?.image_config_id || episode.value?.imageConfigId || null)
+const selectedImageConfig = computed(() => {
+  const selected = imageModelOptions.value.find(option => option.key === imageModel.value)
+  if (selected) return imageConfigs.value.find(config => config.id === selected.configId)
+  const locked = imageConfigs.value.find(config => config.id === lockedImageConfigId.value && config.is_active)
+  if (locked) return locked
+  return [...imageConfigs.value]
+    .filter(config => config.is_active)
+    .sort((a, b) => (b.priority || 0) - (a.priority || 0))[0]
+})
+const isRunningHubImage = computed(() => selectedImageConfig.value?.provider === 'runninghub')
+const selectedImageResolution = computed(() => isRunningHubImage.value ? imageResolution.value : undefined)
 const selectedVideoConfig = computed(() => {
   const selected = videoModelOptions.value.find(option => option.key === videoModel.value)
   if (selected) return videoConfigs.value.find(config => config.id === selected.configId)
@@ -2867,7 +2903,7 @@ async function genCharImg(id) {
         await ensureAssetPrompt('character', id)
       } catch {} // 提示词生成失败不阻断：后端生图前会再兜底生成或回退本地拼接
     }
-    await characterAPI.generateImage(id, epId.value, bareModelName(imageModel.value) || undefined, ownerConfigId(imageModelOptions.value, imageModel.value), chatModelOverride(), chatConfigId())
+    await characterAPI.generateImage(id, epId.value, bareModelName(imageModel.value) || undefined, ownerConfigId(imageModelOptions.value, imageModel.value), chatModelOverride(), chatConfigId(), selectedImageResolution.value)
     toast.success(t('episode.image.generatingChar'))
     await refresh()
     watchAsyncResult(() => {
@@ -2885,7 +2921,7 @@ function batchCharImages() {
   const ids = visualChars.value.filter(c => !(c.image_url || c.imageUrl)).map(c => c.id)
   if (!ids.length) { toast.info(t('episode.image.allCharsDone')); return }
   pendingCharImageIds.value = [...new Set([...pendingCharImageIds.value, ...ids])]
-  characterAPI.batchImages(ids, epId.value, bareModelName(imageModel.value) || undefined, ownerConfigId(imageModelOptions.value, imageModel.value), chatModelOverride(), chatConfigId()).then(async () => {
+  characterAPI.batchImages(ids, epId.value, bareModelName(imageModel.value) || undefined, ownerConfigId(imageModelOptions.value, imageModel.value), chatModelOverride(), chatConfigId(), selectedImageResolution.value).then(async () => {
     toast.success(t('episode.image.batchGeneratingChar'))
     await refresh()
     watchAsyncResult(() => ids.every(id => {
@@ -2909,7 +2945,7 @@ async function genSceneImg(id) {
         await ensureAssetPrompt('scene', id)
       } catch {} // 提示词生成失败不阻断：后端生图前会再兜底生成或回退本地拼接
     }
-    await sceneAPI.generateImage(id, epId.value, bareModelName(imageModel.value) || undefined, ownerConfigId(imageModelOptions.value, imageModel.value), chatModelOverride(), chatConfigId())
+    await sceneAPI.generateImage(id, epId.value, bareModelName(imageModel.value) || undefined, ownerConfigId(imageModelOptions.value, imageModel.value), chatModelOverride(), chatConfigId(), selectedImageResolution.value)
     toast.success(t('episode.image.generatingScene'))
     await refresh()
     watchAsyncResult(() => {
@@ -2936,7 +2972,7 @@ async function genPropImg(id) {
         await ensureAssetPrompt('prop', id)
       } catch {} // 提示词生成失败不阻断：后端生图前会再兜底生成或回退本地拼接
     }
-    await propAPI.generateImage(id, epId.value, bareModelName(imageModel.value) || undefined, ownerConfigId(imageModelOptions.value, imageModel.value), chatModelOverride(), chatConfigId())
+    await propAPI.generateImage(id, epId.value, bareModelName(imageModel.value) || undefined, ownerConfigId(imageModelOptions.value, imageModel.value), chatModelOverride(), chatConfigId(), selectedImageResolution.value)
     toast.success(t('episode.image.generatingProp'))
     await refresh()
     watchAsyncResult(() => {
@@ -2954,7 +2990,7 @@ function batchSceneImages() {
   const ids = scenes.value.filter(s => !(s.image_url || s.imageUrl)).map(s => s.id)
   if (!ids.length) { toast.info(t('episode.image.allScenesDone')); return }
   pendingSceneImageIds.value = [...new Set([...pendingSceneImageIds.value, ...ids])]
-  ids.forEach(id => { sceneAPI.generateImage(id, epId.value, bareModelName(imageModel.value) || undefined, ownerConfigId(imageModelOptions.value, imageModel.value), chatModelOverride(), chatConfigId()).then(() => refresh()).catch(e => toastError(e)) })
+  ids.forEach(id => { sceneAPI.generateImage(id, epId.value, bareModelName(imageModel.value) || undefined, ownerConfigId(imageModelOptions.value, imageModel.value), chatModelOverride(), chatConfigId(), selectedImageResolution.value).then(() => refresh()).catch(e => toastError(e)) })
   toast.success(t('episode.image.batchGeneratingScene'))
   watchAsyncResult(() => ids.every(id => {
     const scene = scenes.value.find(s => s.id === id)
@@ -2967,7 +3003,7 @@ function batchPropImages() {
   const ids = propItems.value.filter(p => !(p.image_url || p.imageUrl)).map(p => p.id)
   if (!ids.length) { toast.info(t('episode.image.allPropsDone')); return }
   pendingPropImageIds.value = [...new Set([...pendingPropImageIds.value, ...ids])]
-  ids.forEach(id => { propAPI.generateImage(id, epId.value, bareModelName(imageModel.value) || undefined, ownerConfigId(imageModelOptions.value, imageModel.value), chatModelOverride(), chatConfigId()).then(() => refresh()).catch(e => toastError(e)) })
+  ids.forEach(id => { propAPI.generateImage(id, epId.value, bareModelName(imageModel.value) || undefined, ownerConfigId(imageModelOptions.value, imageModel.value), chatModelOverride(), chatConfigId(), selectedImageResolution.value).then(() => refresh()).catch(e => toastError(e)) })
   toast.success(t('episode.image.batchGeneratingProp'))
   watchAsyncResult(() => ids.every(id => {
     const prop = propItems.value.find(p => p.id === id)

@@ -31,6 +31,7 @@ interface GenerateImageParams {
   prompt: string
   model?: string
   size?: string
+  resolution?: string
   referenceImages?: string[]
   frameType?: string
   configId?: number
@@ -77,6 +78,7 @@ export async function generateImage(params: GenerateImageParams): Promise<number
     model: params.model || config.model,
   }, {
     size: params.size || '1920x1080',
+    resolution: params.resolution,
     frameType: params.frameType,
     referenceImages: params.referenceImages,
   })
@@ -213,6 +215,7 @@ async function processTask(id: number, config: AIConfig) {
         model: record.model,
         prompt: record.prompt,
         size: params.size,
+        resolution: params.resolution,
         frameType: params.frameType,
         referenceImages: resolvedReferenceImages.length ? JSON.stringify(resolvedReferenceImages) : null,
       }))

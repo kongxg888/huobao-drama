@@ -453,7 +453,8 @@
       "viewFilm": "完成映像を見る",
       "continue": "制作を続ける",
       "start": "制作を開始",
-      "resolution": "解像度"
+      "resolution": "動画解像度",
+      "imageResolution": "画像解像度"
     },
     "model": {
       "defaultWith": "デフォルト · {model}",

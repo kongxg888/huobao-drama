@@ -85,6 +85,7 @@ export interface ImageGenerationRecord {
   model?: string | null
   prompt?: string | null
   size?: string | null
+  resolution?: string | null
   frameType?: string | null
   referenceImages?: string | null
   // ... 其他字段

@@ -453,7 +453,8 @@
       "viewFilm": "완성 영상 보기",
       "continue": "제작 계속",
       "start": "제작 시작",
-      "resolution": "해상도"
+      "resolution": "영상 해상도",
+      "imageResolution": "이미지 해상도"
     },
     "model": {
       "defaultWith": "기본 · {model}",

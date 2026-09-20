@@ -453,7 +453,8 @@
       "viewFilm": "查看成片",
       "continue": "继续制作",
       "start": "开始制作",
-      "resolution": "分辨率"
+      "resolution": "视频分辨率",
+      "imageResolution": "图片分辨率"
     },
     "model": {
       "defaultWith": "默认 · {model}",

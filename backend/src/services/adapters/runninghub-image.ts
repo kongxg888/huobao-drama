@@ -61,11 +61,9 @@ function aspectRatioFromSize(size?: string | null): string {
   return `${width / divisor}:${height / divisor}`
 }
 
-function resolutionFromSize(size?: string | null): string {
-  const width = Number(String(size || '').split('x')[0])
-  if (width >= 2048) return '4k'
-  if (width >= 1024) return '2k'
-  return '1k'
+function normalizeResolution(value?: string | null): string {
+  const normalized = String(value || '').trim().toLowerCase()
+  return ['1k', '2k', '4k'].includes(normalized) ? normalized : '4k'
 }
 
 export class RunningHubImageAdapter implements ImageProviderAdapter {
@@ -84,7 +82,8 @@ export class RunningHubImageAdapter implements ImageProviderAdapter {
     const body: Record<string, any> = {
       prompt: record.prompt || '',
       aspectRatio: aspectRatioFromSize(record.size),
-      resolution: resolutionFromSize(record.size),
+      // RunningHub 经济版默认是 1K；吉祥Ai短剧默认明确请求 4K，界面选择值再覆盖它。
+      resolution: normalizeResolution(record.resolution),
     }
     if (references.length) body.imageUrls = references
 
