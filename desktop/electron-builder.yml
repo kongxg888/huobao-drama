@@ -1,5 +1,5 @@
 appId: com.huobao.drama
-productName: HuobaoDrama
+productName: 吉祥 Ai短剧
 directories:
   output: release
   buildResources: build
@@ -57,4 +57,4 @@ nsis:
   oneClick: false
   allowToChangeInstallationDirectory: true
   createDesktopShortcut: always
-  shortcutName: HuobaoDrama
+  shortcutName: 吉祥 Ai短剧

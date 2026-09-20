@@ -12,6 +12,8 @@ import * as fs from 'fs'
 import * as fsp from 'fs/promises'
 import * as path from 'path'
 
+const PRODUCT_NAME = '吉祥 Ai短剧'
+
 export interface MigrationDeps {
   getWindow(): BrowserWindow | null
   getDataDir(): string
@@ -266,7 +268,7 @@ export async function runMigration(deps: MigrationDeps, opts: MigrateOptions): P
         deps.markRestartingFalse()
       } catch (recoverErr) {
         console.error('[migrate] 恢复后端失败:', recoverErr)
-        dialog.showErrorBox('火宝短剧', `存储迁移失败且恢复后台服务失败，应用即将关闭。\n原始错误：${message}`)
+        dialog.showErrorBox(PRODUCT_NAME, `存储迁移失败且恢复后台服务失败，应用即将关闭。\n原始错误：${message}`)
         app.quit()
         return
       }

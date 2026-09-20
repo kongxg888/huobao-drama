@@ -16,6 +16,8 @@ import * as path from 'path'
 import crypto from 'crypto'
 import { spawn, execFile } from 'child_process'
 
+const PRODUCT_NAME = '吉祥 Ai短剧'
+
 // 双源：COS（国内直连）优先，GitHub（海外）兜底；HUOBAO_UPDATE_FEED 可整体覆盖
 const FEED_URLS = process.env.HUOBAO_UPDATE_FEED
   ? [process.env.HUOBAO_UPDATE_FEED]
@@ -179,10 +181,10 @@ async function doDownload(): Promise<UpdateState> {
 function describeApplyError(err: unknown): string {
   const e = err as NodeJS.ErrnoException
   if (e?.code === 'EPERM' || e?.code === 'EACCES') {
-    return `系统权限不足（${e.code}）：请在 系统设置 → 隐私与安全性 → App 管理 中允许 HuobaoDrama 后重试；或下载最新 dmg 覆盖安装（数据不受影响）`
+    return `系统权限不足（${e.code}）：请在 系统设置 → 隐私与安全性 → App 管理 中允许 ${PRODUCT_NAME} 后重试；或下载最新 dmg 覆盖安装（数据不受影响）`
   }
   if (e?.code === 'EROFS') {
-    return '应用正运行在只读位置（可能直接在 dmg 挂载卷里），请先把 HuobaoDrama 拖入「应用程序」再更新'
+    return `应用正运行在只读位置（可能直接在 dmg 挂载卷里），请先把 ${PRODUCT_NAME} 拖入「应用程序」再更新`
   }
   return e?.message || String(err)
 }
@@ -201,8 +203,10 @@ async function doApply(): Promise<void> {
       await new Promise<void>((resolve, reject) => {
         execFile('unzip', ['-q', '-o', downloaded, '-d', tmpExtract], err => (err ? reject(err) : resolve()))
       })
-      const newApp = path.join(tmpExtract, 'HuobaoDrama.app')
-      if (!fs.existsSync(newApp)) throw new Error('更新包内容异常（未找到 HuobaoDrama.app）')
+      const appEntries = fs.readdirSync(tmpExtract, { withFileTypes: true })
+        .filter(entry => entry.isDirectory() && entry.name.endsWith('.app'))
+      if (appEntries.length !== 1) throw new Error('更新包内容异常（未找到唯一的 macOS 应用包）')
+      const newApp = path.join(tmpExtract, appEntries[0].name)
 
       const oldBundle = `${bundle}.old`
       fs.rmSync(oldBundle, { recursive: true, force: true })
