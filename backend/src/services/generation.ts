@@ -347,7 +347,7 @@ async function pollTask(record: SysTaskRecord, config: AIConfig, taskId: string)
     }
     await new Promise(r => setTimeout(r, profile.intervalMs))
     try {
-      const { url, method, headers } = adapter.buildPollRequest(config, taskId)
+      const { url, method, headers, body } = adapter.buildPollRequest(config, taskId)
       logTaskProgress(label, 'poll-request', {
         id: record.id,
         taskId,
@@ -362,6 +362,7 @@ async function pollTask(record: SysTaskRecord, config: AIConfig, taskId: string)
       const resp = await fetch(url, {
         method,
         headers,
+        body: body === undefined ? undefined : JSON.stringify(body),
         signal: AbortSignal.timeout(remainingMs),
       })
       if (!resp.ok) continue

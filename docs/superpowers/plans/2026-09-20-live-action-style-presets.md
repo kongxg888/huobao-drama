@@ -28,7 +28,7 @@
 - Consumes: the source text exported by `/Users/mac/Documents/ChatGPT/huobao-drama/backend/src/db/sqlite-schema.ts`.
 - Produces: a structural regression test that fails until both built-in presets and their video constraints exist.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Append this test to `backend/tests/style-presets-structure.test.mjs`:
 
@@ -49,7 +49,7 @@ test('built-in live-action presets include image and video continuity constraint
 })
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 Run from `/Users/mac/Documents/ChatGPT/huobao-drama/backend`:
 
@@ -71,7 +71,7 @@ Expected: the existing style tests pass, and the new test fails because the two 
 - Consumes: existing `stylePresetSeeds`, `SEED_SQL`, and `REMOVED_SEED_PROMPTS` startup logic.
 - Produces: two active rows in `style_presets`; each row supplies one shared prompt prefix for image and video generation.
 
-- [ ] **Step 1: Insert the two seed objects**
+- [x] **Step 1: Insert the two seed objects**
 
 Insert the following two objects into `stylePresetSeeds` after the `comic` entry and before `guofeng`:
 
@@ -90,7 +90,7 @@ Insert the following two objects into `stylePresetSeeds` after the `comic` entry
 
 Keep the existing `REMOVED_SEED_PROMPTS.live` entry unchanged. It only removes the old exact `live` seed prompt; it does not match either new key.
 
-- [ ] **Step 2: Run the focused test and typecheck**
+- [x] **Step 2: Run the focused test and typecheck**
 
 Run from `/Users/mac/Documents/ChatGPT/huobao-drama/backend`:
 
@@ -101,7 +101,7 @@ npm run typecheck
 
 Expected: all style structure tests pass and TypeScript exits successfully.
 
-- [ ] **Step 3: Commit the source and regression test**
+- [x] **Step 3: Commit the source and regression test**
 
 Run from `/Users/mac/Documents/ChatGPT/huobao-drama`:
 
@@ -124,7 +124,7 @@ The commit must not stage the pre-existing RunningHub adapter changes or any API
 - Consumes: the two seed keys and the existing API-driven settings/project creation flow.
 - Produces: user-facing documentation that explains style presets are shared by images and videos, while model IDs stay in service configuration.
 
-- [ ] **Step 1: Add the README note**
+- [x] **Step 1: Add the README note**
 
 Add this paragraph after the existing project-creation visual-style paragraph:
 
@@ -132,7 +132,7 @@ Add this paragraph after the existing project-creation visual-style paragraph:
 Built-in visual styles include `真人影视剧质感` (`live-action`) and `真人影视短剧·古风玄幻` (`live-action-xianxia`). The selected style is automatically added to image and video prompts; video shots still need their own action and camera description. Image/video model IDs remain configured separately under AI Services.
 ```
 
-- [ ] **Step 2: Verify documentation and prompt injection references**
+- [x] **Step 2: Verify documentation and prompt injection references**
 
 Run from `/Users/mac/Documents/ChatGPT/huobao-drama`:
 
@@ -143,7 +143,7 @@ rg -n "live-action|live-action-xianxia|图片和视频|image and video" README.m
 
 Expected: no whitespace errors; the README contains both keys; the existing video injection code remains present.
 
-- [ ] **Step 3: Commit the documentation**
+- [x] **Step 3: Commit the documentation**
 
 Run:
 
@@ -174,9 +174,9 @@ git commit -m "docs: explain live-action style usage"
 
 **Interfaces:**
 - Consumes: the existing Electron app identity, updater feed format, and user-data directory.
-- Produces: visible product name `吉祥 Ai短剧`, with `com.huobao.drama` and `HuobaoDrama` storage paths retained for compatibility.
+- Produces: visible product name `吉祥Ai短剧`, with `com.huobao.drama` and `HuobaoDrama` storage paths retained for compatibility.
 
-- [ ] **Step 1: Add a failing brand compatibility test**
+- [x] **Step 1: Add a failing brand compatibility test**
 
 Create `desktop/tests/app-brand-structure.test.mjs`:
 
@@ -197,31 +197,31 @@ test('brand rename changes visible names but preserves app identity and data pat
   const zh = read('frontend/app/locales/zh.json')
   const feed = read('desktop/scripts/make-update-feed.mjs')
 
-  assert.equal(pkg.productName, '吉祥 Ai短剧')
+  assert.equal(pkg.productName, '吉祥Ai短剧')
   assert.match(builder, /appId: com\.huobao\.drama/)
-  assert.match(builder, /productName: 吉祥 Ai短剧/)
+  assert.match(builder, /productName: 吉祥Ai短剧/)
   assert.match(main, /app\.isPackaged \? 'HuobaoDrama' : 'HuobaoDrama-Dev'/)
-  assert.match(nuxt, /title: '吉祥 Ai短剧'/)
-  assert.match(zh, /"title": "吉祥 Ai短剧"/)
+  assert.match(nuxt, /title: '吉祥Ai短剧'/)
+  assert.match(zh, /"title": "吉祥Ai短剧"/)
   assert.match(feed, /pkg\.productName/)
   assert.match(updater, /readdirSync\(tmpExtract/)
   assert.doesNotMatch(updater, /path\.join\(tmpExtract, 'HuobaoDrama\.app'\)/)
 })
 ```
 
-- [ ] **Step 2: Update visible names and safe path handling**
+- [x] **Step 2: Update visible names and safe path handling**
 
 Apply these exact compatibility changes:
 
 ```yaml
 # desktop/electron-builder.yml
 appId: com.huobao.drama
-productName: 吉祥 Ai短剧
+productName: 吉祥Ai短剧
 ```
 
 ```json
 // desktop/package.json
-"productName": "吉祥 Ai短剧"
+"productName": "吉祥Ai短剧"
 ```
 
 Keep the existing `app.setPath('userData', ...)` expression with `HuobaoDrama` and `HuobaoDrama-Dev`. In `desktop/src/updater.ts`, replace the hard-coded extracted app path with a single-app lookup:
@@ -233,9 +233,9 @@ if (!appEntry) throw new Error('更新包内容异常（未找到 macOS 应用�
 const newApp = path.join(tmpExtract, appEntry.name)
 ```
 
-Use `吉祥 Ai短剧` for the window title, migration/startup error-box titles, Chinese application title, shortcut name, and product description. Build/feed/publish scripts must derive artifact prefixes from `pkg.productName`; do not hard-code `HuobaoDrama` as the new artifact prefix. Keep update feed domains and internal app paths unchanged.
+Use `吉祥Ai短剧` for the window title, migration/startup error-box titles, Chinese application title, shortcut name, and product description. Build/feed/publish scripts must derive artifact prefixes from `pkg.productName`; do not hard-code `HuobaoDrama` as the new artifact prefix. Keep update feed domains and internal app paths unchanged.
 
-- [ ] **Step 3: Run the brand test and package scripts' static checks**
+- [x] **Step 3: Run the brand test and package scripts' static checks**
 
 Run:
 
@@ -244,11 +244,11 @@ node --test desktop/tests/app-brand-structure.test.mjs
 git diff --check
 ```
 
-- [ ] **Step 4: Commit the brand change**
+- [x] **Step 4: Commit the brand change**
 
 ```bash
 git add frontend/app/locales/zh.json frontend/nuxt.config.ts desktop/package.json desktop/electron-builder.yml desktop/src/main.ts desktop/src/migrate.ts desktop/src/updater.ts 'desktop/assets/如提示已损坏请双击我.command' desktop/scripts/make-update-feed.mjs desktop/scripts/publish-release.mjs package.json README.md README.zh-CN.md desktop/tests/app-brand-structure.test.mjs
-git commit -m "feat: rename app to 吉祥 Ai短剧"
+git commit -m "feat: rename app to 吉祥Ai短剧"
 ```
 
 ---
@@ -264,7 +264,7 @@ git commit -m "feat: rename app to 吉祥 Ai短剧"
 - Consumes: the two committed style seeds and existing provider configuration.
 - Produces: generated frontend assets and macOS installer artifacts containing the new presets.
 
-- [ ] **Step 1: Run focused backend and frontend checks**
+- [x] **Step 1: Run focused backend and frontend checks**
 
 Run from `/Users/mac/Documents/ChatGPT/huobao-drama/backend`:
 
@@ -282,7 +282,7 @@ npm run generate
 
 Expected: focused structural tests pass, backend typecheck passes, and frontend generation completes.
 
-- [ ] **Step 2: Package the desktop application**
+- [x] **Step 2: Package the desktop application**
 
 Run from `/Users/mac/Documents/ChatGPT/huobao-drama`:
 
@@ -292,7 +292,7 @@ npm run dist
 
 Expected: `desktop/release/` contains refreshed arm64 and x64 macOS artifacts.
 
-- [ ] **Step 3: Verify the packaged output without a paid generation**
+- [x] **Step 3: Verify the packaged output without a paid generation**
 
 Run:
 

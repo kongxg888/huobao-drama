@@ -1,9 +1,9 @@
 {
   "name": "huobao-drama-desktop",
-  "productName": "吉祥 Ai短剧",
+  "productName": "吉祥Ai短剧",
   "version": "4.0.4",
   "private": true,
-  "description": "吉祥 Ai短剧桌面版（Electron 壳）",
+  "description": "吉祥Ai短剧桌面版（Electron 壳）",
   "author": "Huobao",
   "main": "dist/main.js",
   "scripts": {

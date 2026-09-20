@@ -57,7 +57,7 @@ test('backend rejects unsupported providers at DB and route boundaries', () => {
 
   assert.match(ai, /officialProviders/)
   assert.match(ai, /text:\s*\[\s*'openai',\s*'gemini',\s*'volcengine'\s*\]/)
-  assert.match(ai, /image:\s*\[\s*'openai',\s*'gemini',\s*'volcengine'\s*\]/)
+  assert.match(ai, /image:\s*\[\s*'openai',\s*'gemini',\s*'volcengine',\s*'runninghub'\s*\]/)
   assert.match(ai, /video:\s*\[\s*'volcengine',\s*'minimax',\s*'aliyun'\s*\]/)
   assert.doesNotMatch(ai, /'deepseek'/)
   assert.doesNotMatch(ai, /'ali'/)
@@ -145,6 +145,35 @@ test('adapter registry fails closed for unsupported providers', () => {
   assert.doesNotMatch(registry, /\|\|\s*imageAdapters\['minimax'\]/)
   assert.doesNotMatch(registry, /\|\|\s*videoAdapters\['minimax'\]/)
   assert.doesNotMatch(registry, /ttsAdapters/)
+})
+
+test('RunningHub image adapter keeps full model IDs and maps image modes to API routes', () => {
+  const registry = read('src/services/adapters/registry.ts')
+  const ai = read('src/services/ai.ts')
+  const route = read('src/routes/aiConfigs.ts')
+  const adapter = read('src/services/adapters/runninghub-image.ts')
+
+  assert.match(registry, /runninghub: new RunningHubImageAdapter\(\)/)
+  assert.match(ai, /image:\s*\[[\s\S]*'runninghub'/)
+  assert.match(route, /p === 'runninghub'/)
+  assert.match(adapter, /gpt-image-2\.0\/text-to-image\/economy/)
+  assert.match(adapter, /gpt-image-2\.0\/edit\/economy/)
+  assert.match(adapter, /gpt-image-2\/image-to-image\/stable/)
+  assert.match(adapter, /\/openapi\/v2\/query/)
+  assert.match(adapter, /imageUrls/)
+  assert.match(adapter, /taskId/)
+})
+
+test('RunningHub config probe does not submit a billable image task', () => {
+  const route = read('src/routes/aiConfigs.ts')
+  const start = route.indexOf("if (p === 'runninghub')")
+  const end = route.indexOf("if (p === 'minimax')", start)
+  const probe = route.slice(start, end)
+
+  assert.match(probe, /method:\s*'GET'/)
+  assert.match(probe, /url:\s*baseUrl\.replace/)
+  assert.match(probe, /body:\s*undefined/)
+  assert.doesNotMatch(probe, /connection test/)
 })
 
 test('OpenAI image adapter defaults to GPT Image instead of legacy DALL-E', () => {

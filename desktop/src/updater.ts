@@ -16,7 +16,7 @@ import * as path from 'path'
 import crypto from 'crypto'
 import { spawn, execFile } from 'child_process'
 
-const PRODUCT_NAME = '吉祥 Ai短剧'
+const PRODUCT_NAME = '吉祥Ai短剧'
 
 // 双源：COS（国内直连）优先，GitHub（海外）兜底；HUOBAO_UPDATE_FEED 可整体覆盖
 const FEED_URLS = process.env.HUOBAO_UPDATE_FEED

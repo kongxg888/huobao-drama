@@ -12,7 +12,7 @@ import * as fs from 'fs'
 import * as fsp from 'fs/promises'
 import * as path from 'path'
 
-const PRODUCT_NAME = '吉祥 Ai短剧'
+const PRODUCT_NAME = '吉祥Ai短剧'
 
 export interface MigrationDeps {
   getWindow(): BrowserWindow | null

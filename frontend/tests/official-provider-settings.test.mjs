@@ -28,10 +28,13 @@ test('settings page exposes official provider templates only', () => {
   assert.doesNotMatch(useApi, /huobaoPreset/i)
   assert.doesNotMatch(useApi, /\/huobao-preset/)
 
-  assert.match(settingsPage, /const providers = \['gemini', 'openai', 'volcengine', 'minimax', 'aliyun'\]/)
+  assert.match(settingsPage, /const providers = \['gemini', 'openai', 'volcengine', 'runninghub', 'minimax', 'aliyun'\]/)
   assert.match(settingsPage, /https:\/\/generativelanguage\.googleapis\.com/)
   assert.match(settingsPage, /https:\/\/api\.openai\.com/)
   assert.match(settingsPage, /https:\/\/ark\.cn-beijing\.volces\.com/)
+  assert.match(settingsPage, /runninghub/)
+  assert.match(settingsPage, /gpt-image-2\.0\/text-to-image\/economy/)
+  assert.match(settingsPage, /gpt-image-2\.0\/edit\/economy/)
   assert.match(settingsPage, /https:\/\/\{WorkspaceId\}\.cn-beijing\.maas\.aliyuncs\.com/)
   assert.doesNotMatch(settingsPage, /https:\/\/api\.deepseek\.com/)
   assert.doesNotMatch(settingsPage, /https:\/\/dashscope\.aliyuncs\.com/)
@@ -45,7 +48,7 @@ test('settings page exposes official provider templates only', () => {
 
 test('settings page offers official default model IDs', () => {
   assert.match(settingsPage, /gemini-3\.1-pro-preview/)
-  assert.match(settingsPage, /gemini-3\.5-flash/)
+  assert.match(settingsPage, /gemini-3\.8-flash/)
   assert.match(settingsPage, /gemini-3-flash-preview/)
   assert.match(settingsPage, /gpt-5\.6-terra/)
   assert.match(settingsPage, /deepseek-v4-flash/)
@@ -94,5 +97,5 @@ test('Huobao quick config includes Wan 3.0 through the Qwen gateway route', () =
   const quickConfigs = settingsPage.slice(quickStart, settingsPage.indexOf('\n]', quickStart) + 2)
   assert.match(quickConfigs, /provider:\s*'aliyun'/)
   assert.match(quickConfigs, /base_url:\s*'https:\/\/api\.firemux\.com\/qwen'/)
-  assert.match(quickConfigs, /model:\s*\['wan3\.0-video-prime', 'wan3\.0-video'\]/)
+  assert.match(quickConfigs, /model:\s*\['wan3\.0-video', 'wan3\.0-video-prime'\]/)
 })

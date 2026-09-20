@@ -1,6 +1,6 @@
 {
   "app": {
-    "title": "吉祥 Ai短剧",
+    "title": "吉祥Ai短剧",
     "updateAvailable": "New version v{version} is available. Upgrade in Settings → About."
   },
   "common": {
@@ -878,7 +878,7 @@
     "helpTitle": "Guide",
     "index": {
       "welcome": {
-        "title": "👋 Welcome to 吉祥 Ai短剧",
+        "title": "👋 Welcome to 吉祥Ai短剧",
         "desc": "Novel → script → assets → storyboard → video → final cut, all in one place. Configure AI services first, then create your first project."
       },
       "create": {
