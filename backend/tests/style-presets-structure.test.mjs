@@ -62,6 +62,7 @@ test('agent default prompts no longer hardcode consistent art style', () => {
 
 test('built-in live-action presets include image and video continuity constraints', () => {
   const schema = read('src/db/sqlite-schema.ts')
+  const tasks = read('src/routes/tasks.ts')
 
   assert.match(schema, /name: '真人影视剧质感', value: 'live-action'/)
   assert.match(schema, /name: '真人影视短剧·古风玄幻', value: 'live-action-xianxia'/)
@@ -73,4 +74,6 @@ test('built-in live-action presets include image and video continuity constraint
   assert.match(schema, /no flicker/)
   assert.match(schema, /REMOVED_SEED_PROMPTS/)
   assert.match(schema, /live:/)
+  assert.match(tasks, /getDramaStylePrompt/)
+  assert.match(tasks, /videoPrompt = `\$\{stylePrompt\}/)
 })

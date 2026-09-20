@@ -84,6 +84,17 @@ function buildProbe(serviceType: string, provider: string, baseUrl: string, mode
     }
   }
 
+  if (p === 'runninghub') {
+    // RunningHub 的图片接口是计费任务接口，不能用测试提示词直接提交生图。
+    // 这里只检查用户填写的主站是否可访问；API Key 和模型有效性留到用户明确生成测试图时验证。
+    return {
+      method: 'GET',
+      url: baseUrl.replace(/\/+$/, ''),
+      headers: {},
+      body: undefined,
+    }
+  }
+
   if (p === 'minimax') {
     // MiniMax 仅提供视频服务，空请求体探测鉴权/端点连通性
     return {
@@ -204,7 +215,9 @@ app.post('/test', async (c) => {
       method: probe.method,
       url: probeUrl,
       message: reachable
-        ? (resp.ok ? '端点可访问，认证与路径基本正常' : '端点已响应，请根据状态码判断认证或路径是否正确')
+        ? (body.provider.toLowerCase() === 'runninghub'
+          ? 'RunningHub 主站可访问；未提交计费生图任务，API Key 将在实际生成图片时验证'
+          : (resp.ok ? '端点可访问，认证与路径基本正常' : '端点已响应，请根据状态码判断认证或路径是否正确'))
         : '端点未按预期响应，请检查 Base URL 和代理前缀',
       response_preview: text.slice(0, 240),
     }
