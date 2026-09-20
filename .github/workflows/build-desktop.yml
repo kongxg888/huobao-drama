@@ -155,9 +155,17 @@ jobs:
           upload_assets=(desktop/release/latest.json)
           for asset in "${assets[@]:1}"; do
             base="$(basename "$asset")"
-            remote="${base//吉祥Ai短剧/JixiangAiShortDrama}"
-            remote="${remote// /-}"
-            upload_assets+=("$asset#$remote")
+            version="${RELEASE_TAG#v}"
+            case "$base" in
+              *-arm64-mac.zip) remote="JixiangAiShortDrama-${version}-arm64-mac.zip" ;;
+              *-mac.zip) remote="JixiangAiShortDrama-${version}-mac.zip" ;;
+              *-arm64.dmg) remote="JixiangAiShortDrama-${version}-arm64.dmg" ;;
+              *.dmg) remote="JixiangAiShortDrama-${version}.dmg" ;;
+              *.exe) remote="JixiangAiShortDrama-Setup-${version}.exe" ;;
+              *) echo "未知发布资产：$base" >&2; exit 1 ;;
+            esac
+            cp "$asset" "desktop/release/$remote"
+            upload_assets+=("desktop/release/$remote")
           done
 
           if gh release view "$RELEASE_TAG" --repo "$RELEASE_REPO" >/dev/null 2>&1; then
