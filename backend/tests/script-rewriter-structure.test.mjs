@@ -58,3 +58,16 @@ test('episode rewrite UI sends the selected mode and custom requirements', () =>
   assert.match(episode, /rewriteCustomLabel/)
   assert.match(episode, /saveRaw\(\)/)
 })
+
+test('episode raw content exposes safe single-file text import', () => {
+  const episode = read('../frontend/app/views/drama/episode.vue')
+
+  assert.match(episode, /textImportInput/)
+  assert.match(episode, /accept="\.txt,\.md,\.markdown/)
+  assert.match(episode, /openTextImport/)
+  assert.match(episode, /importTextFile/)
+  assert.match(episode, /file\.text\(\)/)
+  assert.match(episode, /window\.confirm/)
+  assert.match(episode, /replace\(\/\\r\\n\?\/g, '\\n'\)/)
+  assert.match(episode, /episode\.script\.imported/)
+})
