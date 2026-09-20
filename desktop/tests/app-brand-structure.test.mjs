@@ -16,7 +16,7 @@ test('brand rename changes visible names but preserves app identity and data pat
   const feed = read('desktop/scripts/make-update-feed.mjs')
 
   assert.equal(pkg.productName, '吉祥Ai短剧')
-  assert.equal(pkg.version, '5.0.0')
+  assert.match(pkg.version, /^\d+\.\d+\.\d+$/)
   assert.match(builder, /appId: com\.huobao\.drama/)
   assert.match(builder, /productName: 吉祥Ai短剧/)
   assert.match(main, /app\.isPackaged \? 'HuobaoDrama' : 'HuobaoDrama-Dev'/)

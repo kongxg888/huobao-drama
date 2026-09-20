@@ -1,7 +1,7 @@
 {
   "name": "huobao-drama-desktop",
   "productName": "吉祥Ai短剧",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "private": true,
   "description": "吉祥Ai短剧桌面版（Electron 壳）",
   "author": "JixiangAi",
