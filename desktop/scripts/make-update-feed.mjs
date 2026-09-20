@@ -32,7 +32,7 @@ const version = pkg.version
 const productName = pkg.productName || '吉祥Ai短剧'
 // GitHub Release 对非 ASCII 资产名的规范化不稳定；发布时统一使用可预测的 ASCII 名称。
 const releaseProductName = process.env.GITHUB_ASSET_PREFIX || 'JixiangAiShortDrama'
-const repo = process.env.GITHUB_REPO || 'kongxg888/huobao-drama'
+const repo = process.env.GITHUB_REPO || 'kongxg888/jixiang-drama'
 const baseUrl = argOf('--base-url')
   || process.env.UPDATE_BASE_URL
   || `https://github.com/${repo}/releases/download/v${version}`

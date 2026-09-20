@@ -6,7 +6,7 @@
  *
  * 前置:
  *   - desktop/release/ 已有本版本产物(npm run dist / dist:win 之后)
- *   - gh 已登录，并拥有 kongxg888/huobao-drama 的写入权限
+ *   - gh 已登录，并拥有 kongxg888/jixiang-drama 的写入权限
  *
  * 产物布局:
  *   GitHub: vX.Y.Z Release(空格文件名自动规范化为点号,见 make-update-feed)
@@ -21,7 +21,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const DESKTOP = path.resolve(__dirname, '..')
 const RELEASE = path.join(DESKTOP, 'release')
 
-const GITHUB_REPO = process.env.GITHUB_REPO || 'kongxg888/huobao-drama'
+const GITHUB_REPO = process.env.GITHUB_REPO || 'kongxg888/jixiang-drama'
 const GITHUB_ASSET_PREFIX = process.env.GITHUB_ASSET_PREFIX || 'JixiangAiShortDrama'
 
 const pkg = JSON.parse(fs.readFileSync(path.join(DESKTOP, 'package.json'), 'utf8'))

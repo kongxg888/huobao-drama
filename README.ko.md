@@ -7,7 +7,7 @@
 [![Node Version](https://img.shields.io/badge/Node.js-20+-339933?style=flat&logo=node.js)](https://nodejs.org)
 [![Vue Version](https://img.shields.io/badge/Vue-3.x-4FC08D?style=flat&logo=vue.js)](https://vuejs.org)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
-[![다운로드](https://img.shields.io/github/v/release/kongxg888/huobao-drama?style=flat&logo=github&label=%EB%8B%A4%EC%9A%B4%EB%A1%9C%EB%93%9C)](https://github.com/kongxg888/huobao-drama/releases/latest)
+[![다운로드](https://img.shields.io/github/v/release/kongxg888/jixiang-drama?style=flat&logo=github&label=%EB%8B%A4%EC%9A%B4%EB%A1%9C%EB%93%9C)](https://github.com/kongxg888/jixiang-drama/releases/latest)
 
 [English](README.md) | [简体中文](README.zh-CN.md) | [日本語](README.ja.md) | **한국어**
 
@@ -19,8 +19,8 @@
 
 배포 후 「설정 → 吉祥快捷 설정」에 Key 를 붙여넣으면 추천 설정 3개가 한 번에 입력됩니다
 
-<h3>📥 <a href="https://github.com/kongxg888/huobao-drama/releases/latest">데스크톱 앱 다운로드 (macOS / Windows)</a></h3>
-<h3>🌐 <a href="https://github.com/kongxg888/huobao-drama">프로젝트 저장소</a></h3>
+<h3>📥 <a href="https://github.com/kongxg888/jixiang-drama/releases/latest">데스크톱 앱 다운로드 (macOS / Windows)</a></h3>
+<h3>🌐 <a href="https://github.com/kongxg888/jixiang-drama">프로젝트 저장소</a></h3>
 
 </div>
 
@@ -133,8 +133,8 @@ data/       — 생성된 에셋과 SQLite 데이터베이스
 
 ```bash
 # 저장소 클론
-git clone https://github.com/kongxg888/huobao-drama.git
-cd huobao-drama
+git clone https://github.com/kongxg888/jixiang-drama.git
+cd jixiang-drama
 
 # 백엔드 의존성 설치
 cd backend && npm install
@@ -284,7 +284,7 @@ cd backend && npx tsx scripts/import-mysql-to-sqlite.ts
 
 ### 🖥️ 데스크톱 앱(권장)
 
-**⬇️ 빌드된 설치 파일: [GitHub Releases](https://github.com/kongxg888/huobao-drama/releases/latest)**
+**⬇️ 빌드된 설치 파일: [GitHub Releases](https://github.com/kongxg888/jixiang-drama/releases/latest)**
 
 | 플랫폼 | 다운로드 파일 |
 |---|---|
@@ -297,7 +297,7 @@ cd backend && npx tsx scripts/import-mysql-to-sqlite.ts
 **커맨드라인 설치(권장, 복구 불필요)**: curl로 다운로드하면 macOS 격리 속성이 붙지 않아 "손상됨" 경고 없이 바로 실행됩니다(Apple Silicon은 `-arm64.dmg`, Intel은 일반 dmg 사용):
 
 ```bash
-curl -L -o /tmp/JixiangAiShortDrama.dmg https://github.com/kongxg888/huobao-drama/releases/download/v5.0.0/JixiangAiShortDrama-5.0.0-arm64.dmg \
+curl -L -o /tmp/JixiangAiShortDrama.dmg https://github.com/kongxg888/jixiang-drama/releases/download/v5.0.0/JixiangAiShortDrama-5.0.0-arm64.dmg \
   && hdiutil attach -nobrowse /tmp/JixiangAiShortDrama.dmg \
   && cp -R /Volumes/吉祥Ai短剧*/吉祥Ai短剧.app /Applications/ \
   && hdiutil detach /Volumes/吉祥Ai短剧*

@@ -7,7 +7,7 @@
 [![Node Version](https://img.shields.io/badge/Node.js-20+-339933?style=flat&logo=node.js)](https://nodejs.org)
 [![Vue Version](https://img.shields.io/badge/Vue-3.x-4FC08D?style=flat&logo=vue.js)](https://vuejs.org)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
-[![下载](https://img.shields.io/github/v/release/kongxg888/huobao-drama?style=flat&logo=github&label=%E4%B8%8B%E8%BD%BD)](https://github.com/kongxg888/huobao-drama/releases/latest)
+[![下载](https://img.shields.io/github/v/release/kongxg888/jixiang-drama?style=flat&logo=github&label=%E4%B8%8B%E8%BD%BD)](https://github.com/kongxg888/jixiang-drama/releases/latest)
 
 [English](README.md) | **简体中文** | [日本語](README.ja.md) | [한국어](README.ko.md)
 
@@ -19,8 +19,8 @@
 
 部署完成后在「设置 → 吉祥快捷配置」粘贴 Key，一键写入三条推荐配置，开箱即用
 
-<h3>📥 <a href="https://github.com/kongxg888/huobao-drama/releases/latest">下载桌面版（macOS / Windows）</a></h3>
-<h3>🌐 <a href="https://github.com/kongxg888/huobao-drama">项目仓库</a></h3>
+<h3>📥 <a href="https://github.com/kongxg888/jixiang-drama/releases/latest">下载桌面版（macOS / Windows）</a></h3>
+<h3>🌐 <a href="https://github.com/kongxg888/jixiang-drama">项目仓库</a></h3>
 
 </div>
 
@@ -133,8 +133,8 @@ data/       — 生成资源文件与 SQLite 数据库
 
 ```bash
 # 克隆项目
-git clone https://github.com/kongxg888/huobao-drama.git
-cd huobao-drama
+git clone https://github.com/kongxg888/jixiang-drama.git
+cd jixiang-drama
 
 # 安装后端依赖
 cd backend && npm install
@@ -285,7 +285,7 @@ cd backend && npx tsx scripts/import-mysql-to-sqlite.ts
 
 ### 🖥️ 桌面应用（推荐）
 
-**⬇️ 预编译安装包下载：[GitHub Releases](https://github.com/kongxg888/huobao-drama/releases/latest)**
+**⬇️ 预编译安装包下载：[GitHub Releases](https://github.com/kongxg888/jixiang-drama/releases/latest)**
 
 | 平台 | 下载文件 |
 |---|---|
@@ -298,7 +298,7 @@ cd backend && npx tsx scripts/import-mysql-to-sqlite.ts
 **命令行安装（推荐，免修复）**：用 curl 下载不会触发 macOS 隔离属性，安装后双击即开，不会遇到「已损坏」提示（Apple Silicon 把 `arm64` 文件名换成对应版本，Intel 用无后缀 dmg）：
 
 ```bash
-curl -L -o /tmp/JixiangAiShortDrama.dmg https://github.com/kongxg888/huobao-drama/releases/download/v5.0.0/JixiangAiShortDrama-5.0.0-arm64.dmg \
+curl -L -o /tmp/JixiangAiShortDrama.dmg https://github.com/kongxg888/jixiang-drama/releases/download/v5.0.0/JixiangAiShortDrama-5.0.0-arm64.dmg \
   && hdiutil attach -nobrowse /tmp/JixiangAiShortDrama.dmg \
   && cp -R /Volumes/吉祥Ai短剧*/吉祥Ai短剧.app /Applications/ \
   && hdiutil detach /Volumes/吉祥Ai短剧*

@@ -22,7 +22,7 @@ const PRODUCT_NAME = '吉祥Ai短剧'
 const FEED_URLS = process.env.HUOBAO_UPDATE_FEED
   ? [process.env.HUOBAO_UPDATE_FEED]
   : [
-    'https://github.com/kongxg888/huobao-drama/releases/latest/download/latest.json',
+    'https://github.com/kongxg888/jixiang-drama/releases/latest/download/latest.json',
   ]
 
 export interface UpdateState {

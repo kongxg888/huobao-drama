@@ -29,7 +29,7 @@
       <div class="header-right">
         <a
           class="github-link"
-          href="https://github.com/kongxg888/huobao-drama"
+          href="https://github.com/kongxg888/jixiang-drama"
           target="_blank"
           rel="noopener"
           aria-label="GitHub"

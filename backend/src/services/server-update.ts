@@ -15,7 +15,7 @@ import { fileURLToPath } from 'url'
 const FEED_URLS = process.env.HUOBAO_UPDATE_FEED
   ? [process.env.HUOBAO_UPDATE_FEED]
   : [
-    'https://github.com/kongxg888/huobao-drama/releases/latest/download/latest.json',
+    'https://github.com/kongxg888/jixiang-drama/releases/latest/download/latest.json',
   ]
 
 const WATCHTOWER_URL = process.env.HUOBAO_WATCHTOWER_URL?.replace(/\/+$/, '')

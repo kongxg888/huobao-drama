@@ -7,7 +7,7 @@
 [![Node Version](https://img.shields.io/badge/Node.js-20+-339933?style=flat&logo=node.js)](https://nodejs.org)
 [![Vue Version](https://img.shields.io/badge/Vue-3.x-4FC08D?style=flat&logo=vue.js)](https://vuejs.org)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
-[![ダウンロード](https://img.shields.io/github/v/release/kongxg888/huobao-drama?style=flat&logo=github&label=%E3%83%80%E3%82%A6%E3%83%B3%E3%83%AD%E3%83%BC%E3%83%89)](https://github.com/kongxg888/huobao-drama/releases/latest)
+[![ダウンロード](https://img.shields.io/github/v/release/kongxg888/jixiang-drama?style=flat&logo=github&label=%E3%83%80%E3%82%A6%E3%83%B3%E3%83%AD%E3%83%BC%E3%83%89)](https://github.com/kongxg888/jixiang-drama/releases/latest)
 
 [English](README.md) | [简体中文](README.zh-CN.md) | **日本語** | [한국어](README.ko.md)
 
@@ -19,8 +19,8 @@
 
 デプロイ後、「設定 → 吉祥クイック設定」に Key を貼るだけで、3 つの推奨設定をワンクリックで書き込み
 
-<h3>📥 <a href="https://github.com/kongxg888/huobao-drama/releases/latest">デスクトップ版をダウンロード（macOS / Windows）</a></h3>
-<h3>🌐 <a href="https://github.com/kongxg888/huobao-drama">プロジェクトリポジトリ</a></h3>
+<h3>📥 <a href="https://github.com/kongxg888/jixiang-drama/releases/latest">デスクトップ版をダウンロード（macOS / Windows）</a></h3>
+<h3>🌐 <a href="https://github.com/kongxg888/jixiang-drama">プロジェクトリポジトリ</a></h3>
 
 </div>
 
@@ -133,8 +133,8 @@ data/       — 生成アセットと SQLite データベース
 
 ```bash
 # リポジトリをクローン
-git clone https://github.com/kongxg888/huobao-drama.git
-cd huobao-drama
+git clone https://github.com/kongxg888/jixiang-drama.git
+cd jixiang-drama
 
 # バックエンドの依存をインストール
 cd backend && npm install
@@ -284,7 +284,7 @@ cd backend && npx tsx scripts/import-mysql-to-sqlite.ts
 
 ### 🖥️ デスクトップアプリ（推奨）
 
-**⬇️ ビルド済みインストーラー: [GitHub Releases](https://github.com/kongxg888/huobao-drama/releases/latest)**
+**⬇️ ビルド済みインストーラー: [GitHub Releases](https://github.com/kongxg888/jixiang-drama/releases/latest)**
 
 | プラットフォーム | ダウンロードファイル |
 |---|---|
@@ -297,7 +297,7 @@ cd backend && npx tsx scripts/import-mysql-to-sqlite.ts
 **コマンドラインインストール（推奨・修復不要）**：curl でのダウンロードは macOS の隔離属性が付かないため、「壊れている」警告なしでそのまま起動できます（Apple Silicon は `-arm64.dmg`、Intel は無印の dmg）：
 
 ```bash
-curl -L -o /tmp/JixiangAiShortDrama.dmg https://github.com/kongxg888/huobao-drama/releases/download/v5.0.0/JixiangAiShortDrama-5.0.0-arm64.dmg \
+curl -L -o /tmp/JixiangAiShortDrama.dmg https://github.com/kongxg888/jixiang-drama/releases/download/v5.0.0/JixiangAiShortDrama-5.0.0-arm64.dmg \
   && hdiutil attach -nobrowse /tmp/JixiangAiShortDrama.dmg \
   && cp -R /Volumes/吉祥Ai短剧*/吉祥Ai短剧.app /Applications/ \
   && hdiutil detach /Volumes/吉祥Ai短剧*

@@ -7,7 +7,7 @@
 [![Node Version](https://img.shields.io/badge/Node.js-20+-339933?style=flat&logo=node.js)](https://nodejs.org)
 [![Vue Version](https://img.shields.io/badge/Vue-3.x-4FC08D?style=flat&logo=vue.js)](https://vuejs.org)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
-[![Download](https://img.shields.io/github/v/release/kongxg888/huobao-drama?style=flat&logo=github&label=Download)](https://github.com/kongxg888/huobao-drama/releases/latest)
+[![Download](https://img.shields.io/github/v/release/kongxg888/jixiang-drama?style=flat&logo=github&label=Download)](https://github.com/kongxg888/jixiang-drama/releases/latest)
 
 **English** | [简体中文](README.zh-CN.md) | [日本語](README.ja.md) | [한국어](README.ko.md)
 
@@ -19,8 +19,8 @@
 
 After deploying, paste the key in "Settings → Jixiang Quick Config" to write three recommended configs in one click
 
-<h3>📥 <a href="https://github.com/kongxg888/huobao-drama/releases/latest">Download Desktop App (macOS / Windows)</a></h3>
-<h3>🌐 <a href="https://github.com/kongxg888/huobao-drama">Project Repository</a></h3>
+<h3>📥 <a href="https://github.com/kongxg888/jixiang-drama/releases/latest">Download Desktop App (macOS / Windows)</a></h3>
+<h3>🌐 <a href="https://github.com/kongxg888/jixiang-drama">Project Repository</a></h3>
 
 </div>
 
@@ -133,8 +133,8 @@ No config files — everything is set via environment variables (all have defaul
 
 ```bash
 # Clone the repository
-git clone https://github.com/kongxg888/huobao-drama.git
-cd huobao-drama
+git clone https://github.com/kongxg888/jixiang-drama.git
+cd jixiang-drama
 
 # Install backend dependencies
 cd backend && npm install
@@ -305,7 +305,7 @@ The episode list shows the production status of every episode — click "Enter S
 
 ### 🖥️ Desktop App (recommended)
 
-**⬇️ Prebuilt installers: [GitHub Releases](https://github.com/kongxg888/huobao-drama/releases/latest)**
+**⬇️ Prebuilt installers: [GitHub Releases](https://github.com/kongxg888/jixiang-drama/releases/latest)**
 
 | Platform | File to download |
 |---|---|
@@ -318,7 +318,7 @@ The episode list shows the production status of every episode — click "Enter S
 **Command-line install (recommended, no Gatekeeper fix needed)**: downloading via curl never sets macOS's quarantine attribute, so the app opens cleanly with no "damaged" prompt (use the `-arm64.dmg` for Apple Silicon, the plain dmg for Intel):
 
 ```bash
-curl -L -o /tmp/JixiangAiShortDrama.dmg https://github.com/kongxg888/huobao-drama/releases/download/v5.0.0/JixiangAiShortDrama-5.0.0-arm64.dmg \
+curl -L -o /tmp/JixiangAiShortDrama.dmg https://github.com/kongxg888/jixiang-drama/releases/download/v5.0.0/JixiangAiShortDrama-5.0.0-arm64.dmg \
   && hdiutil attach -nobrowse /tmp/JixiangAiShortDrama.dmg \
   && cp -R /Volumes/吉祥Ai短剧*/吉祥Ai短剧.app /Applications/ \
   && hdiutil detach /Volumes/吉祥Ai短剧*
