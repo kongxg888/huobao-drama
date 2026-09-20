@@ -181,6 +181,17 @@
             </div>
             <div class="toolbar-right">
               <span v-if="rawLen" class="char-count">{{ t('episode.script.charCount', { n: rawLen }) }}</span>
+              <button class="btn btn-sm" type="button" :disabled="textImporting" @click="openTextImport">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 8 5-5 5 5"/><path d="M5 21h14"/></svg>
+                {{ t('episode.script.importText') }}
+              </button>
+              <input
+                ref="textImportInput"
+                class="sr-only"
+                type="file"
+                accept=".txt,.md,.markdown,text/plain,text/markdown"
+                @change="importTextFile"
+              />
               <button class="btn btn-sm" @click="saveRawWithToast">
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
                 {{ t('common.save') }}
@@ -1501,6 +1512,8 @@ const panel = ref(['production', 'export'].includes(storedPanel?.panel) ? stored
 const { running: rn, runningType: rt, run: runAgent } = useAgent()
 
 const localRaw = ref(''), localScript = ref('')
+const textImportInput = ref<HTMLInputElement | null>(null)
+const textImporting = ref(false)
 const rewriteMode = ref('normalize')
 const rewriteInstructions = ref('')
 const rewriteModes = computed(() => [
@@ -2720,6 +2733,43 @@ async function saveRawWithToast() {
     toast.success(t('episode.script.saved'))
   } catch (error) {
     toastError(error, { fallback: 'episode.script.rewriteSaveFailed' })
+  }
+}
+function openTextImport() {
+  textImportInput.value?.click()
+}
+async function importTextFile(event: Event) {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  input.value = ''
+  if (!file) return
+
+  const extension = file.name.toLowerCase().split('.').pop() || ''
+  if (!['txt', 'md', 'markdown'].includes(extension)) {
+    toast.warning(t('episode.script.importUnsupported'))
+    return
+  }
+
+  if (textImporting.value) return
+  textImporting.value = true
+  try {
+    const content = (await file.text())
+      .replace(/^\uFEFF/, '')
+      .replace(/\r\n?/g, '\n')
+    if (!content.trim()) {
+      toast.warning(t('episode.script.importEmpty'))
+      return
+    }
+
+    const hasUnsavedRaw = Boolean(localRaw.value.trim() && localRaw.value !== rawContent.value)
+    if (hasUnsavedRaw && !window.confirm(t('episode.script.importReplaceConfirm'))) return
+
+    localRaw.value = content
+    toast.success(t('episode.script.imported', { name: file.name, n: content.length }))
+  } catch (error) {
+    toastError(error, { fallback: 'episode.script.importFailed' })
+  } finally {
+    textImporting.value = false
   }
 }
 function saveScr() { episodeAPI.update(epId.value, { script_content: localScript.value }); episode.value.script_content = localScript.value }
