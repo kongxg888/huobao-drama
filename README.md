@@ -309,16 +309,16 @@ The episode list shows the production status of every episode — click "Enter S
 
 | Platform | File to download |
 |---|---|
-| macOS (Apple Silicon, M-series) | `吉祥Ai短剧-5.0.0-arm64.dmg` |
-| macOS (Intel) | `吉祥Ai短剧-5.0.0.dmg` |
-| Windows | `吉祥Ai短剧 Setup 5.0.0.exe` |
+| macOS (Apple Silicon, M-series) | `JixiangAiShortDrama-5.0.0-arm64.dmg` |
+| macOS (Intel) | `JixiangAiShortDrama-5.0.0.dmg` |
+| Windows | `JixiangAiShortDrama-Setup-5.0.0.exe` |
 
 > The in-app updater uses your own GitHub Releases by default. Set `HUOBAO_UPDATE_FEED` to use a custom mirror.
 
 **Command-line install (recommended, no Gatekeeper fix needed)**: downloading via curl never sets macOS's quarantine attribute, so the app opens cleanly with no "damaged" prompt (use the `-arm64.dmg` for Apple Silicon, the plain dmg for Intel):
 
 ```bash
-curl -L -o /tmp/JixiangAiShortDrama.dmg https://github.com/kongxg888/huobao-drama/releases/download/v5.0.0/%E5%90%89%E7%A5%A5Ai%E7%9F%AD%E5%89%A7-5.0.0-arm64.dmg \
+curl -L -o /tmp/JixiangAiShortDrama.dmg https://github.com/kongxg888/huobao-drama/releases/download/v5.0.0/JixiangAiShortDrama-5.0.0-arm64.dmg \
   && hdiutil attach -nobrowse /tmp/JixiangAiShortDrama.dmg \
   && cp -R /Volumes/吉祥Ai短剧*/吉祥Ai短剧.app /Applications/ \
   && hdiutil detach /Volumes/吉祥Ai短剧*

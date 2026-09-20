@@ -139,6 +139,7 @@ jobs:
       - name: 生成应用内更新清单
         env:
           GITHUB_REPO: ${{ github.repository }}
+          GITHUB_ASSET_PREFIX: JixiangAiShortDrama
           RELEASE_NOTES: 吉祥Ai短剧 ${{ github.ref_name }}：GitHub Actions 自动构建的 macOS 与 Windows 安装包
         run: node desktop/scripts/make-update-feed.mjs --notes "$RELEASE_NOTES"
 
@@ -151,9 +152,16 @@ jobs:
         shell: bash
         run: |
           assets=(desktop/release/latest.json desktop/release/*.dmg desktop/release/*.zip desktop/release/*.exe)
+          upload_assets=(desktop/release/latest.json)
+          for asset in "${assets[@]:1}"; do
+            base="$(basename "$asset")"
+            remote="${base//吉祥Ai短剧/JixiangAiShortDrama}"
+            remote="${remote// /-}"
+            upload_assets+=("$asset#$remote")
+          done
 
           if gh release view "$RELEASE_TAG" --repo "$RELEASE_REPO" >/dev/null 2>&1; then
-            gh release upload "$RELEASE_TAG" "${assets[@]}" \
+            gh release upload "$RELEASE_TAG" "${upload_assets[@]}" \
               --repo "$RELEASE_REPO" \
               --clobber
             gh release edit "$RELEASE_TAG" \
@@ -161,7 +169,7 @@ jobs:
               --draft=false \
               --latest
           else
-            gh release create "$RELEASE_TAG" "${assets[@]}" \
+            gh release create "$RELEASE_TAG" "${upload_assets[@]}" \
               --repo "$RELEASE_REPO" \
               --target "$GITHUB_SHA" \
               --title "吉祥Ai短剧 $RELEASE_TAG" \

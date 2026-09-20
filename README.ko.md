@@ -288,16 +288,16 @@ cd backend && npx tsx scripts/import-mysql-to-sqlite.ts
 
 | 플랫폼 | 다운로드 파일 |
 |---|---|
-| macOS(Apple Silicon, M 시리즈) | `吉祥Ai短剧-5.0.0-arm64.dmg` |
-| macOS(Intel) | `吉祥Ai短剧-5.0.0.dmg` |
-| Windows | `吉祥Ai短剧 Setup 5.0.0.exe` |
+| macOS(Apple Silicon, M 시리즈) | `JixiangAiShortDrama-5.0.0-arm64.dmg` |
+| macOS(Intel) | `JixiangAiShortDrama-5.0.0.dmg` |
+| Windows | `JixiangAiShortDrama-Setup-5.0.0.exe` |
 
 > 앱 내 업데이터는 기본적으로 吉祥Ai短剧의 GitHub Releases에서 버전 정보를 확인합니다. 필요하면 `HUOBAO_UPDATE_FEED`로 별도 미러를 지정할 수 있습니다.
 
 **커맨드라인 설치(권장, 복구 불필요)**: curl로 다운로드하면 macOS 격리 속성이 붙지 않아 "손상됨" 경고 없이 바로 실행됩니다(Apple Silicon은 `-arm64.dmg`, Intel은 일반 dmg 사용):
 
 ```bash
-curl -L -o /tmp/JixiangAiShortDrama.dmg https://github.com/kongxg888/huobao-drama/releases/download/v5.0.0/%E5%90%89%E7%A5%A5Ai%E7%9F%AD%E5%89%A7-5.0.0-arm64.dmg \
+curl -L -o /tmp/JixiangAiShortDrama.dmg https://github.com/kongxg888/huobao-drama/releases/download/v5.0.0/JixiangAiShortDrama-5.0.0-arm64.dmg \
   && hdiutil attach -nobrowse /tmp/JixiangAiShortDrama.dmg \
   && cp -R /Volumes/吉祥Ai短剧*/吉祥Ai短剧.app /Applications/ \
   && hdiutil detach /Volumes/吉祥Ai短剧*

@@ -22,6 +22,7 @@ const DESKTOP = path.resolve(__dirname, '..')
 const RELEASE = path.join(DESKTOP, 'release')
 
 const GITHUB_REPO = process.env.GITHUB_REPO || 'kongxg888/huobao-drama'
+const GITHUB_ASSET_PREFIX = process.env.GITHUB_ASSET_PREFIX || 'JixiangAiShortDrama'
 
 const pkg = JSON.parse(fs.readFileSync(path.join(DESKTOP, 'package.json'), 'utf8'))
 const version = pkg.version
@@ -33,8 +34,7 @@ function argOf(flag) { const i = argv.indexOf(flag); return i >= 0 ? argv[i + 1]
 const notes = argOf('--notes') || ''
 const skipGh = argv.includes('--skip-gh')
 
-// 与 make-update-feed 相同的产物清单。注意 electron-builder 的 NSIS 本地产物带空格，
-// GitHub 服务端会规范化为点号。
+// 与 make-update-feed 相同的本地产物清单。
 const assets = [
   `${productName}-${version}-arm64.dmg`,
   `${productName}-${version}.dmg`,
@@ -42,8 +42,8 @@ const assets = [
   `${productName}-${version}-mac.zip`,
   `${productName} Setup ${version}.exe`,
 ]
-// Release URL 使用的规范化文件名（空格 → 点号，与 GitHub 服务端一致）
-const dotName = (f) => f.replace(/ /g, '.')
+// GitHub 上传名固定为 ASCII，避免中文文件名被 GitHub 自动改写。
+const githubAssetName = (f) => f.replace(productName, GITHUB_ASSET_PREFIX).replaceAll(' ', '-')
 const existing = assets.filter(f => fs.existsSync(path.join(RELEASE, f)))
 if (!existing.length) {
   console.error(`release/ 下没有版本 ${version} 的产物,请先 npm run dist / dist:win`)
@@ -60,7 +60,11 @@ if (!skipGh) {
     console.log(`  Release 不存在，先创建 …`)
     execFileSync('gh', ['release', 'create', tag, '--repo', GITHUB_REPO, '--title', tag, '--notes', notes || tag], { stdio: 'inherit' })
   }
-  const ghArgs = ['release', 'upload', tag, '--repo', GITHUB_REPO, ...existing.map(f => path.join(RELEASE, f)), '--clobber']
+  const ghArgs = [
+    'release', 'upload', tag, '--repo', GITHUB_REPO,
+    ...existing.map(f => `${path.join(RELEASE, f)}#${githubAssetName(f)}`),
+    '--clobber',
+  ]
   execFileSync('gh', ghArgs, { stdio: 'inherit' })
   console.log(`  ✓ 已上传 ${existing.length} 个资产`)
 }
@@ -82,7 +86,7 @@ const buildFeed = async (baseUrl) => {
     // 同一平台 dmg/zip 都存在时只取 zip(更新器用),dmg 是给手动安装的
     if (key !== 'win32-x64' && !f.endsWith('.zip')) continue
     platforms[key] = {
-      url: `${baseUrl}/${encodeURIComponent(dotName(f))}`,
+      url: `${baseUrl}/${encodeURIComponent(githubAssetName(f))}`,
       sha256: await sha256(path.join(RELEASE, f)),
       size: fs.statSync(path.join(RELEASE, f)).size,
     }

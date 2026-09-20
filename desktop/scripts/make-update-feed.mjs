@@ -30,6 +30,8 @@ function argOf(flag) {
 const pkg = JSON.parse(fs.readFileSync(path.join(DESKTOP, 'package.json'), 'utf8'))
 const version = pkg.version
 const productName = pkg.productName || '吉祥Ai短剧'
+// GitHub Release 对非 ASCII 资产名的规范化不稳定；发布时统一使用可预测的 ASCII 名称。
+const releaseProductName = process.env.GITHUB_ASSET_PREFIX || 'JixiangAiShortDrama'
 const repo = process.env.GITHUB_REPO || 'kongxg888/huobao-drama'
 const baseUrl = argOf('--base-url')
   || process.env.UPDATE_BASE_URL
@@ -54,6 +56,10 @@ const targets = [
   { key: 'win32-x64', file: `${productName} Setup ${version}.exe` },
 ]
 
+function releaseAssetName(file) {
+  return file.replace(productName, releaseProductName).replaceAll(' ', '-')
+}
+
 const platforms = {}
 const missing = []
 for (const t of targets) {
@@ -63,9 +69,8 @@ for (const t of targets) {
     continue
   }
   platforms[t.key] = {
-    // GitHub 上传资产时会把空格规范化为点号(gh CLI 与 API 均如此,无法保留空格),
-    // URL 必须按服务端实际资产名生成,否则下载 404
-    url: `${baseUrl}/${encodeURIComponent(t.file.replace(/ /g, '.'))}`,
+    // URL 使用与发布上传时相同的 ASCII 资产名，避免 GitHub 对中文名的自动重写。
+    url: `${baseUrl}/${encodeURIComponent(releaseAssetName(t.file))}`,
     sha256: await sha256(file),
     size: fs.statSync(file).size,
   }
