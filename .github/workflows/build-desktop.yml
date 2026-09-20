@@ -18,12 +18,12 @@ jobs:
       contents: read
     steps:
       - name: 拉取源码
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: 配置 Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
           cache-dependency-path: |
             frontend/package-lock.json
@@ -32,9 +32,9 @@ jobs:
 
       - name: 安装依赖
         run: |
-          npm ci --prefix frontend
-          npm ci --prefix backend
-          npm ci --prefix desktop
+          npm ci --prefix frontend --registry=https://registry.npmjs.org
+          npm ci --prefix backend --registry=https://registry.npmjs.org
+          npm ci --prefix desktop --registry=https://registry.npmjs.org
 
       - name: 构建前端
         run: npm run generate --prefix frontend
@@ -59,12 +59,12 @@ jobs:
       contents: read
     steps:
       - name: 拉取源码
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: 配置 Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
           cache-dependency-path: |
             frontend/package-lock.json
@@ -73,9 +73,9 @@ jobs:
 
       - name: 安装依赖
         run: |
-          npm ci --prefix frontend
-          npm ci --prefix backend
-          npm ci --prefix desktop
+          npm ci --prefix frontend --registry=https://registry.npmjs.org
+          npm ci --prefix backend --registry=https://registry.npmjs.org
+          npm ci --prefix desktop --registry=https://registry.npmjs.org
 
       - name: 准备 Windows 原生依赖
         shell: pwsh
@@ -122,12 +122,12 @@ jobs:
       contents: write
     steps:
       - name: 拉取源码
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: 配置 Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
-          node-version: 20
+          node-version: 22
 
       - name: 下载全部平台构建产物
         uses: actions/download-artifact@v4
