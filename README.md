@@ -206,6 +206,25 @@ All AI features (text/image/video) require model services to be configured first
 
 Once configured, the banner disappears and you can start producing episodes.
 
+### 🖼️ RunningHub Image Provider
+
+The fork includes a `runninghub` image provider. In **Settings → AI Services → Image**, add a provider with:
+
+- **Provider**: `runninghub`
+- **Base URL**: `https://www.runninghub.ai`
+- **API Key**: your RunningHub API key (stored only in the local SQLite database)
+- **Model**: a full RunningHub catalog ID, for example `gpt-image-2.0/text-to-image/economy` or `gpt-image-2.0/edit/economy`
+
+RunningHub image generation is asynchronous. Huobao submits the task, polls `/openapi/v2/query`, downloads the result into the local image library, and writes the generated path back to the character, scene, prop, or storyboard record.
+
+The desktop package can be built after dependencies are installed:
+
+```bash
+npm run dist
+```
+
+The macOS installer is written to `desktop/release/`.
+
 ---
 
 ## 📖 Visual Walkthrough
@@ -215,6 +234,8 @@ The complete pipeline from novel to finished episode. The left progress rail alw
 ### Step 1 · Create a Project
 
 On the home page click "New Project", pick a **aspect ratio** (16:9 landscape / 9:16 portrait, fixed after creation) and a **visual style** (3D, realistic, … — injected into every image prompt).
+
+Built-in visual styles include `真人影视剧质感` (`live-action`) and `真人影视短剧·古风玄幻` (`live-action-xianxia`). The selected style is automatically added to image and video prompts; video shots still need their own action and camera description. Image/video model IDs remain configured separately under AI Services.
 
 <p align="center">
   <img src="docs/screenshots/02-create-drama.png" alt="Create a project" width="800">
