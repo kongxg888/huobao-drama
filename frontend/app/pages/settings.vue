@@ -91,7 +91,7 @@
               </a>
             </p>
             <div class="huobao-quick-row">
-              <input v-model="huobaoApiKey" class="input" type="password" placeholder="Huobao API Key" />
+              <input v-model="huobaoApiKey" class="input" type="password" placeholder="Jixiang API Key" />
               <button class="btn btn-primary" :disabled="huobaoSaving" @click="applyHuobaoQuickConfig">
                 <Loader2 v-if="huobaoSaving" :size="13" class="animate-spin" />
                 <Sparkles v-else :size="13" />

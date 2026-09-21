@@ -1,8 +1,8 @@
 /**
  * 应用内更新器（无 Apple 签名方案，同 Tauri updater 思路）
  *
- * - 清单：HUOBAO_UPDATE_FEED；未设置时双源 —— 国内 COS 优先，GitHub Releases 兜底
- *   （两个源返回同一份清单结构，仅下载 URL 域名不同，见 desktop/scripts/publish-release.mjs）
+ * - 清单：HUOBAO_UPDATE_FEED；未设置时使用自有 GitHub Releases
+ *   （清单由 desktop/scripts/publish-release.mjs 生成）
  * - macOS：下载 zip（.app 归档）→ sha256 校验 → 解压 → 旧包改名 .old 备胎 → 新包就位
  *   → `open` 拉起新应用 → 当前实例退出；下次启动清理 .old
  * - Windows：下载 Setup.exe → sha256 校验 → detached 静默安装（/S）→ 当前实例退出
@@ -16,12 +16,13 @@ import * as path from 'path'
 import crypto from 'crypto'
 import { spawn, execFile } from 'child_process'
 
-// 双源：COS（国内直连）优先，GitHub（海外）兜底；HUOBAO_UPDATE_FEED 可整体覆盖
+const PRODUCT_NAME = '吉祥Ai短剧'
+
+// 自有仓库为默认更新源；HUOBAO_UPDATE_FEED 可整体覆盖，便于私有部署或镜像。
 const FEED_URLS = process.env.HUOBAO_UPDATE_FEED
   ? [process.env.HUOBAO_UPDATE_FEED]
   : [
-    'https://installer.chatfire.site/huobao-drama/latest.json',
-    'https://github.com/chatfire-AI/huobao-drama/releases/latest/download/latest.json',
+    'https://github.com/kongxg888/jixiang-drama/releases/latest/download/latest.json',
   ]
 
 export interface UpdateState {
@@ -74,7 +75,7 @@ function platformKey(): string {
 
 /** 已安装 app 的 .app 路径（仅 macOS、打包态有效） */
 function installedAppBundle(): string {
-  // process.execPath = .../HuobaoDrama.app/Contents/MacOS/HuobaoDrama
+  // process.execPath = .../吉祥Ai短剧.app/Contents/MacOS/吉祥Ai短剧
   return path.resolve(path.dirname(process.execPath), '..', '..')
 }
 
@@ -175,6 +176,18 @@ async function doDownload(): Promise<UpdateState> {
 
 // ---- 安装（成功后当前实例退出，不会返回） ----
 
+/** 把换包阶段的原始错误转成可行动的中文提示（EPERM 是最常见：macOS「App 管理」隐私权限） */
+function describeApplyError(err: unknown): string {
+  const e = err as NodeJS.ErrnoException
+  if (e?.code === 'EPERM' || e?.code === 'EACCES') {
+    return `系统权限不足（${e.code}）：请在 系统设置 → 隐私与安全性 → App 管理 中允许 ${PRODUCT_NAME} 后重试；或下载最新 dmg 覆盖安装（数据不受影响）`
+  }
+  if (e?.code === 'EROFS') {
+    return `应用正运行在只读位置（可能直接在 dmg 挂载卷里），请先把 ${PRODUCT_NAME} 拖入「应用程序」再更新`
+  }
+  return e?.message || String(err)
+}
+
 async function doApply(): Promise<void> {
   if (state.status !== 'downloaded' || !state.downloadedFile) {
     // 兜底：直接查询 temp 里的最新产物
@@ -185,28 +198,35 @@ async function doApply(): Promise<void> {
   if (process.platform === 'darwin') {
     const bundle = installedAppBundle()
     const tmpExtract = path.join(app.getPath('temp'), `huobao-update-extract-${Date.now()}`)
-    await new Promise<void>((resolve, reject) => {
-      execFile('unzip', ['-q', '-o', downloaded, '-d', tmpExtract], err => (err ? reject(err) : resolve()))
-    })
-    const newApp = path.join(tmpExtract, 'HuobaoDrama.app')
-    if (!fs.existsSync(newApp)) throw new Error('更新包内容异常（未找到 HuobaoDrama.app）')
-
-    const oldBundle = `${bundle}.old`
-    fs.rmSync(oldBundle, { recursive: true, force: true })
-    fs.renameSync(bundle, oldBundle)
     try {
-      fs.renameSync(newApp, bundle)
+      await new Promise<void>((resolve, reject) => {
+        execFile('unzip', ['-q', '-o', downloaded, '-d', tmpExtract], err => (err ? reject(err) : resolve()))
+      })
+      const appEntries = fs.readdirSync(tmpExtract, { withFileTypes: true })
+        .filter(entry => entry.isDirectory() && entry.name.endsWith('.app'))
+      if (appEntries.length !== 1) throw new Error('更新包内容异常（未找到唯一的 macOS 应用包）')
+      const newApp = path.join(tmpExtract, appEntries[0].name)
+
+      const oldBundle = `${bundle}.old`
+      fs.rmSync(oldBundle, { recursive: true, force: true })
+      fs.renameSync(bundle, oldBundle)
+      try {
+        fs.renameSync(newApp, bundle)
+      } catch (err) {
+        // 就位失败：旧包回滚
+        fs.renameSync(oldBundle, bundle)
+        throw err
+      }
+      // detached 拉起新应用后当前实例退出；下次启动清理 .old 备胎
+      spawn('open', [bundle], { detached: true, stdio: 'ignore' }).unref()
+      app.quit()
+      return
     } catch (err) {
-      // 就位失败：旧包回滚
-      fs.renameSync(oldBundle, bundle)
-      throw err
+      throw new Error(describeApplyError(err))
     } finally {
+      // 任何失败路径都不能留解压残留（旧实现 rename 失败时会泄漏整个 .app）
       fs.rmSync(tmpExtract, { recursive: true, force: true })
     }
-    // detached 拉起新应用后当前实例退出；下次启动清理 .old 备胎
-    spawn('open', [bundle], { detached: true, stdio: 'ignore' }).unref()
-    app.quit()
-    return
   }
 
   if (process.platform === 'win32') {
@@ -235,7 +255,15 @@ export function registerUpdater(getWindow: () => BrowserWindow | null): void {
       throw err
     }
   })
-  ipcMain.handle('huobao:update-apply', () => doApply())
+  ipcMain.handle('huobao:update-apply', async () => {
+    try {
+      await doApply()
+    } catch (err) {
+      // 写入状态让渲染层错误行显示具体原因（否则用户只看到笼统的「安装失败」toast）
+      setState({ status: 'error', error: (err as Error).message })
+      throw err
+    }
+  })
 
   // 启动后静默检查一次（发现新版时渲染层经 update-state 轮询/toast 提示）
   setTimeout(() => { if (!quittingApp()) void doCheck() }, 20_000).unref?.()

@@ -24,6 +24,7 @@ const DESKTOP_ROOT = path.resolve(__dirname, '..')
 // dev 模式下仓库各目录
 const REPO_ROOT = path.resolve(DESKTOP_ROOT, '..')
 const BACKEND_BUNDLE = path.join(DESKTOP_ROOT, 'build', 'backend.mjs')
+const PRODUCT_NAME = '吉祥Ai短剧'
 
 /** workspace 模板版本：内置模板更新时递增，触发向用户目录补缺失文件 */
 const TEMPLATE_VERSION = '4'
@@ -191,7 +192,7 @@ function startBackend(): void {
     backend = null
     // 迁移/重启期间的退出是预期行为，由调用方接管
     if (!quitting && !backendRestarting) {
-      dialog.showErrorBox('火宝短剧', `后台服务异常退出（code ${code}），应用即将关闭。请重新启动。`)
+      dialog.showErrorBox(PRODUCT_NAME, `后台服务异常退出（code ${code}），应用即将关闭。请重新启动。`)
       app.quit()
     }
   })
@@ -203,7 +204,7 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1440,
     height: 900,
-    title: '火宝短剧',
+    title: PRODUCT_NAME,
     show: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -262,7 +263,7 @@ async function bootstrap() {
     await createWindow()
   } catch (err) {
     console.error('[main] 启动失败:', err)
-    dialog.showErrorBox('火宝短剧', `启动失败：\n${(err as Error)?.message || err}`)
+    dialog.showErrorBox(PRODUCT_NAME, `启动失败：\n${(err as Error)?.message || err}`)
     app.quit()
   }
 }

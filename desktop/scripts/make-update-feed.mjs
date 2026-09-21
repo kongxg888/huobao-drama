@@ -29,7 +29,10 @@ function argOf(flag) {
 
 const pkg = JSON.parse(fs.readFileSync(path.join(DESKTOP, 'package.json'), 'utf8'))
 const version = pkg.version
-const repo = process.env.GITHUB_REPO || 'chatfire-AI/huobao-drama'
+const productName = pkg.productName || '吉祥Ai短剧'
+// GitHub Release 对非 ASCII 资产名的规范化不稳定；发布时统一使用可预测的 ASCII 名称。
+const releaseProductName = process.env.GITHUB_ASSET_PREFIX || 'JixiangAiShortDrama'
+const repo = process.env.GITHUB_REPO || 'kongxg888/jixiang-drama'
 const baseUrl = argOf('--base-url')
   || process.env.UPDATE_BASE_URL
   || `https://github.com/${repo}/releases/download/v${version}`
@@ -48,10 +51,14 @@ function sha256(file) {
 // 平台键（与更新器 process.platform-process.arch 一致）→ 产物文件名
 // （electron-builder 的 mac zip 命名带 -mac 后缀）
 const targets = [
-  { key: 'darwin-arm64', file: `HuobaoDrama-${version}-arm64-mac.zip` },
-  { key: 'darwin-x64', file: `HuobaoDrama-${version}-mac.zip` },
-  { key: 'win32-x64', file: `HuobaoDrama Setup ${version}.exe` },
+  { key: 'darwin-arm64', file: `${productName}-${version}-arm64-mac.zip` },
+  { key: 'darwin-x64', file: `${productName}-${version}-mac.zip` },
+  { key: 'win32-x64', file: `${productName} Setup ${version}.exe` },
 ]
+
+function releaseAssetName(file) {
+  return file.replace(productName, releaseProductName).replaceAll(' ', '-')
+}
 
 const platforms = {}
 const missing = []
@@ -62,9 +69,8 @@ for (const t of targets) {
     continue
   }
   platforms[t.key] = {
-    // GitHub 上传资产时会把空格规范化为点号(gh CLI 与 API 均如此,无法保留空格),
-    // URL 必须按服务端实际资产名生成,否则下载 404
-    url: `${baseUrl}/${encodeURIComponent(t.file.replace(/ /g, '.'))}`,
+    // URL 使用与发布上传时相同的 ASCII 资产名，避免 GitHub 对中文名的自动重写。
+    url: `${baseUrl}/${encodeURIComponent(releaseAssetName(t.file))}`,
     sha256: await sha256(file),
     size: fs.statSync(file).size,
   }

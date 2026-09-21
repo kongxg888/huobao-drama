@@ -1,0 +1,185 @@
+name: 构建吉祥Ai短剧桌面版
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+
+concurrency:
+  group: desktop-build-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build-macos:
+    name: macOS 安装包
+    runs-on: macos-latest
+    permissions:
+      contents: read
+    steps:
+      - name: 拉取源码
+        uses: actions/checkout@v7
+
+      - name: 配置 Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            frontend/package-lock.json
+            backend/package-lock.json
+            desktop/package-lock.json
+
+      - name: 安装依赖
+        run: |
+          npm ci --prefix frontend --registry=https://registry.npmjs.org
+          npm ci --prefix backend --registry=https://registry.npmjs.org
+          npm ci --prefix desktop --registry=https://registry.npmjs.org
+
+      - name: 构建前端
+        run: npm run generate --prefix frontend
+
+      - name: 构建 macOS arm64 与 Intel 安装包
+        run: npm run dist --prefix desktop
+
+      - name: 保存 macOS 构建产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-macos
+          path: |
+            desktop/release/*.dmg
+            desktop/release/*.zip
+          if-no-files-found: error
+          retention-days: 14
+
+  build-windows:
+    name: Windows 安装包
+    runs-on: windows-latest
+    permissions:
+      contents: read
+    steps:
+      - name: 拉取源码
+        uses: actions/checkout@v7
+
+      - name: 配置 Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            frontend/package-lock.json
+            backend/package-lock.json
+            desktop/package-lock.json
+
+      - name: 安装依赖
+        run: |
+          npm ci --prefix frontend --registry=https://registry.npmjs.org
+          npm ci --prefix backend --registry=https://registry.npmjs.org
+          npm ci --prefix desktop --registry=https://registry.npmjs.org
+
+      - name: 准备 Windows 原生依赖
+        shell: pwsh
+        run: |
+          npm run rebuild:native --prefix desktop
+
+          $winBin = Join-Path $env:GITHUB_WORKSPACE 'desktop/build/win-bin'
+          New-Item -ItemType Directory -Force -Path $winBin | Out-Null
+
+          $ffmpeg = Join-Path $env:GITHUB_WORKSPACE 'desktop/node_modules/ffmpeg-static/ffmpeg.exe'
+          if (-not (Test-Path $ffmpeg)) {
+            throw "缺少 Windows ffmpeg.exe：$ffmpeg"
+          }
+          Copy-Item $ffmpeg (Join-Path $winBin 'ffmpeg.exe') -Force
+
+          $sqlite = Join-Path $env:GITHUB_WORKSPACE 'desktop/node_modules/better-sqlite3/build/Release/better_sqlite3.node'
+          if (-not (Test-Path $sqlite)) {
+            throw "缺少 Windows better_sqlite3.node：$sqlite"
+          }
+          Copy-Item $sqlite (Join-Path $winBin 'better_sqlite3.node') -Force
+
+      - name: 构建前端
+        run: npm run generate --prefix frontend
+
+      - name: 构建 Windows x64 安装包
+        run: npm run dist:win --prefix desktop
+
+      - name: 保存 Windows 构建产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-windows
+          path: desktop/release/*.exe
+          if-no-files-found: error
+          retention-days: 14
+
+  publish-release:
+    name: 发布 GitHub Release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs:
+      - build-macos
+      - build-windows
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: 拉取源码
+        uses: actions/checkout@v7
+
+      - name: 配置 Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+
+      - name: 下载全部平台构建产物
+        uses: actions/download-artifact@v4
+        with:
+          pattern: desktop-*
+          merge-multiple: true
+          path: desktop/release
+
+      - name: 生成应用内更新清单
+        env:
+          GITHUB_REPO: ${{ github.repository }}
+          GITHUB_ASSET_PREFIX: JixiangAiShortDrama
+          RELEASE_NOTES: 吉祥Ai短剧 ${{ github.ref_name }}：GitHub Actions 自动构建的 macOS 与 Windows 安装包
+        run: node desktop/scripts/make-update-feed.mjs --notes "$RELEASE_NOTES"
+
+      - name: 创建或更新 Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.ref_name }}
+          RELEASE_NOTES: 吉祥Ai短剧 ${{ github.ref_name }}：GitHub Actions 自动构建的 macOS 与 Windows 安装包
+        shell: bash
+        run: |
+          assets=(desktop/release/latest.json desktop/release/*.dmg desktop/release/*.zip desktop/release/*.exe)
+          upload_assets=(desktop/release/latest.json)
+          for asset in "${assets[@]:1}"; do
+            base="$(basename "$asset")"
+            version="${RELEASE_TAG#v}"
+            case "$base" in
+              *-arm64-mac.zip) remote="JixiangAiShortDrama-${version}-arm64-mac.zip" ;;
+              *-mac.zip) remote="JixiangAiShortDrama-${version}-mac.zip" ;;
+              *-arm64.dmg) remote="JixiangAiShortDrama-${version}-arm64.dmg" ;;
+              *.dmg) remote="JixiangAiShortDrama-${version}.dmg" ;;
+              *.exe) remote="JixiangAiShortDrama-Setup-${version}.exe" ;;
+              *) echo "未知发布资产：$base" >&2; exit 1 ;;
+            esac
+            cp "$asset" "desktop/release/$remote"
+            upload_assets+=("desktop/release/$remote")
+          done
+
+          if gh release view "$RELEASE_TAG" --repo "$RELEASE_REPO" >/dev/null 2>&1; then
+            gh release upload "$RELEASE_TAG" "${upload_assets[@]}" \
+              --repo "$RELEASE_REPO" \
+              --clobber
+            gh release edit "$RELEASE_TAG" \
+              --repo "$RELEASE_REPO" \
+              --draft=false \
+              --latest
+          else
+            gh release create "$RELEASE_TAG" "${upload_assets[@]}" \
+              --repo "$RELEASE_REPO" \
+              --target "$GITHUB_SHA" \
+              --title "吉祥Ai短剧 $RELEASE_TAG" \
+              --notes "$RELEASE_NOTES"
+          fi
